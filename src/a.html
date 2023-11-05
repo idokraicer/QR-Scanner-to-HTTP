@@ -24,9 +24,15 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         let counter = 0;
+        let lastScanned;
         function onScanSuccess(decodedText, decodedResult) {
             // handle the scanned code as you like, for example:
             console.log(`Code matched = ${decodedText}`, decodedResult);
+            if (lastScanned == decodedText) {
+                return;
+            } else {
+                lastScanned = decodedText;
+            }
             const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
             // Data to be sent in the request
             let data = {
@@ -70,7 +76,7 @@
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "reader",
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { fps: 1, qrbox: { width: 250, height: 250 } },
   /* verbose= */ false);
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>
