@@ -20,9 +20,15 @@
 </style>
 
 <body>
+    <h1 id="event">
+    </h1>
     <div id="reader" width="600px"></div>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const event = urlParams.get('event');
+        document.getElementById("event").innerHTML = event;
         let counter = 0;
         let lastScanned;
         function onScanSuccess(decodedText, decodedResult) {
@@ -36,7 +42,8 @@
             const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
             // Data to be sent in the request
             let data = {
-                barcode: decodedText
+                barcode: decodedText,
+                event: event
             };
             fetch(webhookUrl, {
                 method: 'POST',
@@ -80,6 +87,7 @@
   /* verbose= */ false);
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>
+
     <div class="data_container">
         <table class="tbl" id="tbl">
             <tr>
