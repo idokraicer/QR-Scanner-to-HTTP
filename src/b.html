@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .data_container {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .styled-table {
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .styled-table thead tr {
+        background-color: #009879;
+        color: #ffffff;
+        text-align: left;
+
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+
+    .tlb {
+        border-top-left-radius: 5px;
+    }
+
+    .trb {
+        border-top-right-radius: 5px;
+    }
+
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+
+    }
+
+    .styled-table tbody tr:hover {
+        font-weight: bold;
+        color: #009879;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+</style>
+
+<body>
+    <h1 id="event">
+    </h1>
+    <div id="reader" width="600px"></div>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8/dist/sweetalert2.min.css">
+    <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const event = urlParams.get('event');
+        document.getElementById("event").innerHTML = event;
+
+
+        let counter = 0;
+        let scanned = new Set();
+        const html5QrCode = new Html5Qrcode("reader");
+        const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
+
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            if (scanned.has(decodedText)) {
+                return;
+            } else {
+                scanned.add(decodedText);
+            }
+            const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
+            // Data to be sent in the request
+            let data = {
+                barcode: decodedText,
+                event: event
+            };
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(status);
+                    counter++;
+                    console.log('Success:', data);
+                    let tbl = document.getElementsByTagName("tbody")[0];
+                    var row = tbl.insertRow(0);
+
+                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    // Add some text to the new cells:
+                    cell1.innerHTML = counter;
+                    cell2.innerHTML = data.name;
+                    cell3.innerHTML = data.email;
+                    cell4.innerHTML = data.expiry;
+                    let d = new Date(data.expiry);
+                    Swal.fire({
+                        title: "Good job!",
+                        html: `שם: ${data.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
+                        icon: "success"
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        };
+        const config = { fps: 1, qrbox: { width: 400, height: 400 } };
+        // Start back camera
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+
+
+
+
+
+
+    </script>
+
+    <div class="data_container">
+        <table class="styled-table" id="tbl">
+            <thead>
+                <tr>
+                    <th class="tlb">no.</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="trb">Expiry Date</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</body>
+
+</html>
