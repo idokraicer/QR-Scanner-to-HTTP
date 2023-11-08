@@ -130,11 +130,11 @@
                     var cell3 = row.insertCell(2);
                     var cell4 = row.insertCell(3);
                     // Add some text to the new cells:
+                    let d = new Date(body.expiry);
                     cell1.innerHTML = counter;
                     cell2.innerHTML = body.name;
                     cell3.innerHTML = body.email;
-                    cell4.innerHTML = body.expiry;
-                    let d = new Date(body.expiry);
+                    cell4.innerHTML = d.toLocaleDateString("en-US");
                     Swal.fire({
                         title: `Status: ${status}`,
                         html: `שם: ${body.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
@@ -145,31 +145,55 @@
                     console.error('Error:', error);
                 });
         }
-        const manual = () => {
-            Swal.fire({
-                title: "הכנס תעודת זהות",
-                input: "number"
-            }).then(result => handleData(result.value))
-        }
+
         let counter = 0;
         let scanned = new Set();
+        let lastScanned;
         const html5QrCode = new Html5Qrcode("reader");
         const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
             if (scanned.has(decodedText)) {
-                return;
+
+                if (lastScanned != decodedText) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "שגיאה",
+                        text: "המשתתף רשום כבר לאירוע",
+                        footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                    })
+                }
             } else {
                 scanned.add(decodedText);
+                lastScanned = decodedText;
+                handleData(decodedText);
             }
-            handleData(decodedText);
-
         };
+
         const config = { fps: 1, qrbox: { width: 400, height: 400 } };
         // Start back camera
         html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
-
-
+        const manual = () => {
+            Swal.fire({
+                title: "הכנס תעודת זהות",
+                input: "number"
+            }).then(result => {
+                if (scanned.has(result.value)) {
+                    if (lastScanned != result.value) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "שגיאה",
+                            text: "המשתתף רשום כבר לאירוע",
+                            footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                        });
+                    }
+                } else {
+                    scanned.add(result.value);
+                    lastScanned = result.value;
+                    handleData(result.value);
+                }
+            })
+        }
 
 
 
