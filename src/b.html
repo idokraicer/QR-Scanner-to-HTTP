@@ -121,7 +121,9 @@
     <script>
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
-        reader.style.width = "500px";
+        var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+        alert(width)
+        reader.style.width = width * 0.8 + "px";
         reader.style.marginTop = "-8px";
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
@@ -209,7 +211,7 @@
             }
         };
 
-        const config = { fps: 1, qrbox: 250 };
+        const config = { fps: 1, qrbox: width * 0.4 };
         // Start back camera
         html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
 
