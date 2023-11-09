@@ -93,11 +93,13 @@
 
 
 <body>
-    <div id="reader" style="width: 500px"></div>
+    <div id="reader" width="700px"></div>
 
 
     <script>
         const html5QrCode = new Html5Qrcode("reader");
+        const reader = document.getElementById("reader");
+        reader.style.width = "700px";
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const event = urlParams.get('event');
@@ -184,7 +186,7 @@
             }
         };
 
-        const config = { fps: 1, qrbox: { width: 250, height: 250 } };
+        const config = { fps: 10, qrbox: 250 };
         // Start back camera
         html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
 
