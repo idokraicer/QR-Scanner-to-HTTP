@@ -123,8 +123,7 @@
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-
-        reader.style.width = width * 0.8 + "px";
+        reader.style.width = Math.min(width * 0.8, 540) + "px";
         reader.style.marginTop = "-8px";
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
