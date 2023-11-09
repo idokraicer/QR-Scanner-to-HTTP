@@ -213,7 +213,7 @@
 
         const config = {
             fps: 1,
-            qrbox: width * 0.4
+            qrbox: Math.min(width * 0.8, 540) * 0.4
         };
         // Start back camera
         html5QrCode.start({
