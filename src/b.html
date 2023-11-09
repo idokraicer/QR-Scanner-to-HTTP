@@ -80,6 +80,7 @@
             border-radius: 10px;
             width: fit-content;
             color: white;
+            cursor: pointer;
         }
 
         .btn svg {
@@ -99,7 +100,8 @@
     <script>
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
-        reader.style.width = "700px";
+        reader.style.width = "500px";
+        reader.style.marginTop = "-8px";
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const event = urlParams.get('event');
