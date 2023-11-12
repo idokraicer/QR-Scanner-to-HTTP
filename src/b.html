@@ -108,6 +108,21 @@
         .btn svg {
             fill: white;
         }
+        
+        .event_header {
+            margin-top: "0px";
+        }
+        
+        .event_header div {
+            font-size: 2em;
+            text-align: center;
+            font-weight: bold;
+            line-height: 80%;
+        }
+        
+        .event_header div:nth-of-type(2) {
+            margin-bottom: 18px;
+        }
     </style>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -116,10 +131,12 @@
 
 
 <body>
+    <div style="display: none;" class="event_header" id="event_header"></div>
     <div id="reader"></div>
 
 
     <script>
+        let allowed = true;
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
@@ -128,7 +145,98 @@
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const event = urlParams.get('event');
-        const handleData = (decodedText) => {
+        let scanned = new Set();
+        let lastScanned;
+        const red = "red",
+            green = "green";
+        const fetchEventDetails = () => {
+            const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
+            let data = {
+                event: event
+            };
+            fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                }).then(response => {
+                    return response.json().then(json => {
+                        return {
+                            statusCode: response.status,
+                            body: json
+                        };
+                    });
+                })
+                .then(data => {
+                    let status = data.statusCode;
+                    if (status == 200) {
+                        let body = data.body;
+                        let registrants = body.registrants;
+                        let details = body.event;
+                        if (details != null) {
+                            let header = document.getElementById("event_header");
+                            let event_date = new Date(details.pcfeventstartdate);
+                            console.log(event_date);
+                            header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
+                            let style = header.style;
+                            style.display = "block";
+                        }
+
+                        console.log(`Status: ${status}`);
+                        console.log("Registrants: ");
+                        console.log(registrants);
+                        console.log("Event Details: ");
+                        console.log(details);
+                        let counter = 0;
+                        registrants.forEach(registrant => {
+
+
+                            counter++;
+                            scanned.add(registrant.pcfid);
+                            //console.log('Success:', data);
+
+                            let tbl = document.getElementsByTagName("tbody")[0];
+                            var row = tbl.insertRow(0);
+
+                            // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+
+                            var cell1 = row.insertCell(0);
+                            var cell2 = row.insertCell(1);
+                            var cell3 = row.insertCell(2);
+                            var cell4 = row.insertCell(3);
+                            var cell5 = row.insertCell(4);
+                            // Add some text to the new cells:
+                            let d = new Date(registrant.pcfsignupdate);
+                            cell1.innerHTML = counter;
+                            cell2.innerHTML = registrant.pcfcontactidname;
+                            cell3.innerHTML = registrant.pcfid;
+                            cell4.innerHTML = registrant.pcfispaidname;
+                            cell4.style.color = registrant.pcfispaid == 1 ? green : red;
+                            cell5.innerHTML = registrant.pcfprice;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "שגיאה",
+                            text: "לא נמצא אירוע- קישור לא תקין",
+                            footer: 'טיפ: קישור לאירוע נמצא בכרטיס האירוע'
+                        });
+                        allowed = false;
+                    }
+
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    allowed = false;
+
+                });
+        }
+
+
+
+        const handleData = (decodedText, method) => {
+            if (!allowed) return;
             console.log(`Handling data for: ${decodedText}`)
             if (decodedText == "" || decodedText == null || decodedText <= 0) return;
             let num = Number(decodedText);
@@ -137,7 +245,10 @@
             // Data to be sent in the request
             let data = {
                 barcode: decodedText,
-                event: event
+                event: event,
+                valid: event != null ? true : false,
+                registration_date: new Date(),
+                method: method
             };
             fetch(webhookUrl, {
                     method: 'POST',
@@ -157,6 +268,7 @@
                     let status = data.statusCode;
                     let body = data.body;
                     console.log(status);
+                    console.log(body);
                     counter++;
                     //console.log('Success:', data);
 
@@ -168,12 +280,18 @@
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);
                     var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+
                     // Add some text to the new cells:
                     let d = new Date(body.expiry);
                     cell1.innerHTML = counter;
                     cell2.innerHTML = body.name;
-                    cell3.innerHTML = body.email;
-                    cell4.innerHTML = d.toLocaleDateString("en-US");
+                    cell3.innerHTML = body.id;
+                    cell4.innerHTML = body.ispaid;
+                    cell4.style.color = body.ispaid == "כן" ? green : red;
+                    cell5.innerHTML = body.price;
+
+                    //cell4.innerHTML = d.toLocaleDateString("en-US");
                     Swal.fire({
                         title: `Status: ${status}`,
                         html: `שם: ${body.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
@@ -182,14 +300,13 @@
                 })
                 .catch((error) => {
                     console.error('Error:', error);
-                    alert("hi")
+                    alert("Error")
 
                 });
         }
 
         let counter = 0;
-        let scanned = new Set();
-        let lastScanned;
+
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
             if (scanned.has(decodedText)) {
@@ -203,11 +320,9 @@
                     })
                 }
             } else {
-                console.log(`Scanned before adding: ${Array.from(scanned)}`);
                 scanned.add(decodedText);
-                console.log(`Scanned after adding: ${Array.from(scanned)}`);
                 lastScanned = decodedText;
-                handleData(decodedText);
+                handleData(decodedText, "qr");
             }
         };
 
@@ -216,12 +331,17 @@
             qrbox: Math.min(width * 0.8, 540) * 0.4
         };
         // Start back camera
-        html5QrCode.start({
-            facingMode: "environment"
-        }, config, qrCodeSuccessCallback);
-        let camera_is_on = true;
+        fetchEventDetails().then({
+            if (allowed) {
+                html5QrCode.start({
+                    facingMode: "environment"
+                }, config, qrCodeSuccessCallback);
+                let camera_is_on = true;
+            }
 
+        });
         const manual = () => {
+            if (!allowed) return;
             Swal.fire({
                     title: "הכנס תעודת זהות",
                     input: "number"
@@ -239,7 +359,7 @@
                     } else {
                         scanned.add(result.value);
                         lastScanned = result.value;
-                        handleData(result.value);
+                        handleData(result.value, "manual");
                     }
                 })
         }
@@ -274,10 +394,11 @@
         <table class="styled-table" id="tbl">
             <thead>
                 <tr>
-                    <th class="tlb">no.</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th class="trb">Expiry Date</th>
+                    <th class="tlb">מס"ד</th>
+                    <th>שם מלא</th>
+                    <th>תעודת זהות</th>
+                    <th>האם שולם</th>
+                    <th class="trb">סכום</th>
                 </tr>
             </thead>
             <tbody></tbody>
