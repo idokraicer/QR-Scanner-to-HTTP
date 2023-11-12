@@ -136,7 +136,7 @@
 
 
     <script>
-        let allowed = true;
+        var allowed;
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
@@ -145,11 +145,11 @@
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const event = urlParams.get('event');
-        let scanned = new Set();
-        let lastScanned;
+        var scanned = new Set();
+        var lastScanned;
         const red = "red",
             green = "green";
-        const fetchEventDetails = () => {
+        const fetchEventDetails = new Promise((callback) => {
             const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
             let data = {
                 event: event
@@ -177,24 +177,16 @@
                         if (details != null) {
                             let header = document.getElementById("event_header");
                             let event_date = new Date(details.pcfeventstartdate);
-                            console.log(event_date);
                             header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
                             let style = header.style;
                             style.display = "block";
                         }
-
-                        console.log(`Status: ${status}`);
-                        console.log("Registrants: ");
-                        console.log(registrants);
-                        console.log("Event Details: ");
-                        console.log(details);
                         let counter = 0;
                         registrants.forEach(registrant => {
 
 
                             counter++;
                             scanned.add(registrant.pcfid);
-                            //console.log('Success:', data);
 
                             let tbl = document.getElementsByTagName("tbody")[0];
                             var row = tbl.insertRow(0);
@@ -214,30 +206,38 @@
                             cell4.innerHTML = registrant.pcfispaidname;
                             cell4.style.color = registrant.pcfispaid == 1 ? green : red;
                             cell5.innerHTML = registrant.pcfprice;
+                            callback(true);
                         });
                     } else {
                         Swal.fire({
                             icon: "error",
                             title: "שגיאה",
-                            text: "לא נמצא אירוע- קישור לא תקין",
-                            footer: 'טיפ: קישור לאירוע נמצא בכרטיס האירוע'
+                            html: "<div dir='rtl'>" + data.body.message + "</div>",
+                            footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
                         });
                         allowed = false;
+                        callback(false);
+
                     }
 
                 })
                 .catch((error) => {
                     console.error('Error:', error);
                     allowed = false;
-
+                    Swal.fire({
+                        icon: "error",
+                        title: "שגיאה",
+                        html: "<div dir='rtl'>" + data.body.message + "</div>",
+                        footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                    });
+                    callback(false);
                 });
-        }
+        });
 
 
 
         const handleData = (decodedText, method) => {
             if (!allowed) return;
-            console.log(`Handling data for: ${decodedText}`)
             if (decodedText == "" || decodedText == null || decodedText <= 0) return;
             let num = Number(decodedText);
             if (num == NaN) return;
@@ -267,36 +267,42 @@
                 .then(data => {
                     let status = data.statusCode;
                     let body = data.body;
-                    console.log(status);
-                    console.log(body);
-                    counter++;
-                    //console.log('Success:', data);
+                    if (status == 200) {
+                        counter++;
 
-                    let tbl = document.getElementsByTagName("tbody")[0];
-                    var row = tbl.insertRow(0);
+                        let tbl = document.getElementsByTagName("tbody")[0];
+                        var row = tbl.insertRow(0);
 
-                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-                    var cell1 = row.insertCell(0);
-                    var cell2 = row.insertCell(1);
-                    var cell3 = row.insertCell(2);
-                    var cell4 = row.insertCell(3);
-                    var cell5 = row.insertCell(4);
+                        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
 
-                    // Add some text to the new cells:
-                    let d = new Date(body.expiry);
-                    cell1.innerHTML = counter;
-                    cell2.innerHTML = body.name;
-                    cell3.innerHTML = body.id;
-                    cell4.innerHTML = body.ispaid;
-                    cell4.style.color = body.ispaid == "כן" ? green : red;
-                    cell5.innerHTML = body.price;
+                        // Add some text to the new cells:
+                        let d = new Date(body.expiry);
+                        cell1.innerHTML = counter;
+                        cell2.innerHTML = body.name;
+                        cell3.innerHTML = body.id;
+                        cell4.innerHTML = body.ispaid;
+                        cell4.style.color = body.ispaid == "כן" ? green : red;
+                        cell5.innerHTML = body.price;
 
-                    //cell4.innerHTML = d.toLocaleDateString("en-US");
-                    Swal.fire({
-                        title: `Status: ${status}`,
-                        html: `שם: ${body.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
-                        icon: "success"
-                    });
+                        //cell4.innerHTML = d.toLocaleDateString("en-US");
+                        Swal.fire({
+                            title: `Status: ${status}`,
+                            html: `שם: ${body.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "שגיאה",
+                            html: "<div dir='rtl'>" + data.body.message + "</div>",
+                            footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                        });
+                    }
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -326,20 +332,26 @@
             }
         };
 
+
         const config = {
             fps: 1,
             qrbox: Math.min(width * 0.8, 540) * 0.4
         };
-        // Start back camera
-        fetchEventDetails().then({
-            if (allowed) {
+        var camera_is_on;
+        fetchEventDetails.then(result => {
+            if (!result) {
+                allowed = false;
+                camera_is_on = true;
+            } else {
+                // Start back camera
                 html5QrCode.start({
                     facingMode: "environment"
                 }, config, qrCodeSuccessCallback);
-                let camera_is_on = true;
+                camera_is_on = true;
+                allowed = true;
             }
-
         });
+
         const manual = () => {
             if (!allowed) return;
             Swal.fire({
@@ -365,6 +377,7 @@
         }
 
         const toggle_camera = () => {
+            if (!allowed) return;
             let btn = document.getElementById("toggle_camera");
             if (camera_is_on) {
                 html5QrCode.stop();
