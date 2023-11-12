@@ -147,6 +147,7 @@
         const event = urlParams.get('event');
         var scanned = new Set();
         var lastScanned;
+        var counter = 0;
         const red = "red",
             green = "green";
         const fetchEventDetails = new Promise((callback) => {
@@ -181,7 +182,6 @@
                             let style = header.style;
                             style.display = "block";
                         }
-                        let counter = 0;
                         registrants.forEach(registrant => {
 
 
@@ -288,11 +288,15 @@
                         cell4.innerHTML = body.ispaid;
                         cell4.style.color = body.ispaid == "כן" ? green : red;
                         cell5.innerHTML = body.price;
-
+                        let txt = "שם: " + body.name;
+                        if (body.ispaid == "לא") {
+                            txt += "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
+                        }
+                        console.log(body);
                         //cell4.innerHTML = d.toLocaleDateString("en-US");
                         Swal.fire({
-                            title: `Status: ${status}`,
-                            html: `שם: ${body.name}<br />תאריך תפוגה: ${d.toLocaleDateString("en-US")}`,
+                            title: `המשתתף נרשם בהצלחה`,
+                            html: txt,
                             icon: "success"
                         });
                     } else {
@@ -311,7 +315,6 @@
                 });
         }
 
-        let counter = 0;
 
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
