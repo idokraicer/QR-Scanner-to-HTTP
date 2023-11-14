@@ -128,15 +128,15 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            let version = "3.2";
+            let version = "3.3";
             var allowed;
             Swal.fire({
                 title: "האם לטעון? גרסה " + version,
-                showCancelButton: true,
+                showCancelButton: false,
+                showDenyButton: true,
                 confirmButtonText: "כן",
-                cancelButtonText: "לא",
+                denyButtonText: "לא",
             }).then((result) => {
-                /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
                     allowed = true;
                 } else {
@@ -342,6 +342,8 @@
                                 title: "שגיאה",
                                 text: "המשתתף רשום כבר לאירוע",
                                 footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                            }).then(result => {
+                                isProcessingScan = false;
                             })
                         }
                     } else {
