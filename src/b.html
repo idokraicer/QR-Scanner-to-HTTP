@@ -139,6 +139,7 @@
         var allowed;
         const html5QrCode = new Html5Qrcode("reader");
         const reader = document.getElementById("reader");
+        let isProcessingScan = false;
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
         reader.style.width = Math.min(width * 0.8, 540) + "px";
         reader.style.marginTop = "-8px";
@@ -318,6 +319,8 @@
 
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            if (isProcessingScan) return;
+            isProcessingScan = true;
             if (scanned.has(decodedText)) {
 
                 if (lastScanned != decodedText) {
@@ -333,14 +336,15 @@
                 lastScanned = decodedText;
                 handleData(decodedText, "qr");
             }
+            isProcessingScan = false;
         };
 
 
         const config = {
-            fps: 5,
+            fps: 60,
             qrbox: Math.min(width * 0.8, 540) * 0.4
         };
-        alert(5);
+        alert(60);
         var camera_is_on;
         fetchEventDetails.then(result => {
             if (!result) {
@@ -363,15 +367,13 @@
                     input: "number"
                 })
                 .then(result => {
-                    if (scanned.has(result.value)) {
-                        if (lastScanned != result.value) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "שגיאה",
-                                text: "המשתתף רשום כבר לאירוע",
-                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                            });
-                        }
+                    if (scanned.has(result.value) && lastScanned != result.value) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "שגיאה",
+                            text: "המשתתף רשום כבר לאירוע",
+                            footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                        });
                     } else {
                         scanned.add(result.value);
                         lastScanned = result.value;
