@@ -232,7 +232,7 @@
 
             const handleData = (decodedText, method) => {
                 if (!allowed) return;
-                if (decodedText == "" || decodedText == null || decodedText <= 0) {
+                if (decodedText == "" || decodedText == null || decodedText <= 0 || !/^\d+$/.test(decodedText)) {
                     Swal.fire({
                         icon: "error",
                         title: "שגיאה",
@@ -241,8 +241,6 @@
                     });
                     return;
                 }
-                let num = Number(decodedText);
-                if (num == NaN) return;
                 const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
                 // Data to be sent in the request
                 let data = {
@@ -345,7 +343,7 @@
                 fps: 60,
                 qrbox: Math.min(width * 0.8, 540) * 0.4
             };
-            alert(60);
+            alert(61);
             var camera_is_on;
             fetchEventDetails.then(result => {
                 if (!result) {
