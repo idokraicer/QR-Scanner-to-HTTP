@@ -128,7 +128,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            let version = "3.3";
+            let version = "3.4";
             var allowed;
             Swal.fire({
                 title: "האם לטעון? גרסה " + version,
@@ -338,20 +338,21 @@
 
                         if (lastScanned != decodedText) {
                             Swal.fire({
-                                icon: "error",
+                                icon: "warning",
                                 title: "שגיאה",
                                 text: "המשתתף רשום כבר לאירוע",
-                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                            }).then(result => {
+                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
+                            }).then(() => {
+                                thread.sleep(1000);
                                 isProcessingScan = false;
-                            })
+                            });
                         }
                     } else {
                         scanned.add(decodedText);
                         lastScanned = decodedText;
                         handleData(decodedText, "qr");
+                        isProcessingScan = false;
                     }
-                    isProcessingScan = false;
                 };
 
 
