@@ -128,7 +128,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            const version = "3.5.1";
+            const version = "3.5";
             var allowed = true;
             let debug = true;
 
@@ -335,7 +335,7 @@
 
 
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-
+                lastScanned = decodedText;
                 if (isProcessingScan) return;
                 isProcessingScan = true;
                 if (scanned.has(decodedText)) {
@@ -357,7 +357,6 @@
                 } else {
                     scanned.add(decodedText);
                     console.log(3);
-                    lastScanned = decodedText;
                     handleData(decodedText, "qr");
                 }
                 isProcessingScan = false;
