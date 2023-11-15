@@ -128,7 +128,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            let version = "3.4";
+            let version = "3.4.1";
             var allowed;
             Swal.fire({
                 title: "האם לטעון? גרסה " + version,
@@ -389,6 +389,10 @@
                                     title: "שגיאה",
                                     text: "המשתתף רשום כבר לאירוע",
                                     footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                                }).then((result) => {
+                                    if (result.value) {
+                                        thread.sleep(1000);
+                                    }
                                 });
                             } else {
                                 scanned.add(result.value);
