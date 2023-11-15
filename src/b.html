@@ -130,7 +130,7 @@
         window.onload = () => {
             const version = "3.4.2";
             var allowed = true;
-            let debug = true;
+            let debug = false;
 
 
 
@@ -361,28 +361,37 @@
             var camera_is_on;
 
 
-            Swal.fire({
-                title: "האם לטעון את רשימת הנרשמים?",
-                showDenyButton: true,
-                confirmButtonText: "כן",
-                denyButtonText: `לא`
-            }).then((result) => {
-                /* Read more about isConfirmed, isDenied below */
-                if (result.isConfirmed) {
-                    return true;
-                } else if (result.isDenied) {
-                    return false;
-                }
-            }).then((result) => {
-                if (result) {
-                    fetchEventDetails();
-                }
-                html5QrCode.start({
-                    facingMode: "environment"
-                }, config, qrCodeSuccessCallback);
-                camera_is_on = true;
-                allowed = true;
-            });
+            new Promise((result) => {
+                    if (debug) {
+
+                        Swal.fire({
+                            title: "האם לטעון את רשימת הנרשמים?",
+                            showDenyButton: true,
+                            confirmButtonText: "כן",
+                            denyButtonText: `לא`
+                        }).then((swalResult) => {
+                            /* Read more about isConfirmed, isDenied below */
+                            if (swalResult.isConfirmed) {
+                                result(true);
+                            } else if (swalResult.isDenied) {
+                                result(false);
+                            }
+
+                        })
+                    } else {
+                        result(true);
+                    }
+                })
+                .then((result) => {
+                    if (result) {
+                        fetchEventDetails();
+                    }
+                    html5QrCode.start({
+                        facingMode: "environment"
+                    }, config, qrCodeSuccessCallback);
+                    camera_is_on = true;
+                    allowed = true;
+                });
 
 
             const manual = () => {
