@@ -128,9 +128,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            const version = "3.4.2";
+            const version = "3.4.3";
             var allowed = true;
-            let debug = false;
+            let debug = true;
 
 
 
@@ -241,6 +241,7 @@
 
 
             const handleData = (decodedText, method) => {
+                isProcessingScan = true;
                 if (!allowed) return;
                 if (decodedText == "" || decodedText == null || decodedText <= 0 || !/^\d+$/.test(decodedText)) {
                     Swal.fire({
@@ -315,8 +316,13 @@
                                 title: "שגיאה",
                                 html: "<div dir='rtl'>" + data.body.message + "</div>",
                                 footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                            }).then(() => {
+                                isProcessingScan = false;
                             });
                         }
+
+                    }).then(() => {
+                        isProcessingScan = false;
                     })
 
                 .catch((error) => {
@@ -329,11 +335,13 @@
 
 
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+
                 if (isProcessingScan) return;
                 isProcessingScan = true;
                 if (scanned.has(decodedText)) {
 
                     if (lastScanned != decodedText) {
+                        console.log(1);
                         Swal.fire({
                             icon: "warning",
                             title: "שגיאה",
@@ -343,13 +351,16 @@
                             thread.sleep(1000);
                             isProcessingScan = false;
                         });
+                    } else {
+                        console.log(2);
                     }
                 } else {
                     scanned.add(decodedText);
+                    console.log(3);
                     lastScanned = decodedText;
                     handleData(decodedText, "qr");
-                    isProcessingScan = false;
                 }
+                isProcessingScan = false;
             };
 
 
