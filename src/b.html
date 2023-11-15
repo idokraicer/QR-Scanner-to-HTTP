@@ -340,7 +340,7 @@
                 isProcessingScan = true;
                 if (scanned.has(decodedText)) {
 
-                    if (lastScanned != decodedText) {
+                    if (lastScanned.toLowerCase() === decodedText.toLowerCase()) {
                         console.log(1);
                         Swal.fire({
                             icon: "warning",
@@ -378,7 +378,7 @@
                         Swal.fire({
                             title: "<div dir='rtl'>האם לטעון את רשימת הנרשמים?</div><div dir='rtl'>גירסה " + version + "</div>",
                             showDenyButton: true,
-                            confirmButtonText: "כן",
+                            confirmButtonText: " כן",
                             denyButtonText: `לא`
                         }).then((swalResult) => {
                             /* Read more about isConfirmed, isDenied below */
