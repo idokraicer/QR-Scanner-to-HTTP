@@ -128,21 +128,34 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            let version = "3.4.1";
+            let version = "3.4.2";
+            let debug = true;
             var allowed;
-            Swal.fire({
-                title: "האם לטעון? גרסה " + version,
-                showCancelButton: false,
-                showDenyButton: true,
-                confirmButtonText: "כן",
-                denyButtonText: "לא",
-            }).then((result) => {
-                if (result.isConfirmed) {
+            if (debug) {
+                Swal.fire({
+                    title: "האם לטעון? גרסה " + version,
+                    showCancelButton: false,
+                    showDenyButton: true,
+                    confirmButtonText: "כן",
+                    denyButtonText: "לא",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        allowed = true;
+                    } else {
+                        allowed = false;
+                    }
+                }).then(() => {
                     allowed = true;
-                } else {
-                    allowed = false;
-                }
-            }).then(() => {
+                    initializeQrCodeReader()
+                });
+
+            } else {
+                allowed = true;
+                initializeQrCodeReader();
+            }
+
+            const initializeQrCodeReader = () => {
+
                 const html5QrCode = new Html5Qrcode("reader");
                 const reader = document.getElementById("reader");
                 let isProcessingScan = false;
@@ -323,101 +336,100 @@
                             }
                         })
                         .catch((error) => {
-                            console.error('Error:', error);
-                            alert("Error")
+                                console.error('Error:', error);
+                                alert("Error")
 
-                        });
-                }
-
-
-
-                const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                    if (isProcessingScan) return;
-                    isProcessingScan = true;
-                    if (scanned.has(decodedText)) {
-
-                        if (lastScanned != decodedText) {
-                            Swal.fire({
-                                icon: "warning",
-                                title: "שגיאה",
-                                text: "המשתתף רשום כבר לאירוע",
-                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
-                            }).then(() => {
-                                thread.sleep(1000);
-                                isProcessingScan = false;
-                            });
+                            }
                         }
-                    } else {
-                        scanned.add(decodedText);
-                        lastScanned = decodedText;
-                        handleData(decodedText, "qr");
-                        isProcessingScan = false;
-                    }
-                };
 
 
-                const config = {
-                    fps: 60,
-                    qrbox: Math.min(width * 0.8, 540) * 0.4
-                };
+                    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                        if (isProcessingScan) return;
+                        isProcessingScan = true;
+                        if (scanned.has(decodedText)) {
 
-                var camera_is_on;
-                fetchEventDetails.then(result => {
-                    if (!result) {
-                        allowed = false;
-                        camera_is_on = true;
-                    } else {
-                        // Start back camera
-                        html5QrCode.start({
-                            facingMode: "environment"
-                        }, config, qrCodeSuccessCallback);
-                        camera_is_on = true;
-                        allowed = true;
-                    }
-                });
-
-                const manual = () => {
-                    if (!allowed) return;
-                    Swal.fire({
-                            title: "הכנס תעודת זהות",
-                            input: "number"
-                        })
-                        .then(result => {
-                            if (scanned.has(result.value) && lastScanned != result.value) {
+                            if (lastScanned != decodedText) {
                                 Swal.fire({
-                                    icon: "error",
+                                    icon: "warning",
                                     title: "שגיאה",
                                     text: "המשתתף רשום כבר לאירוע",
-                                    footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                                }).then((result) => {
-                                    if (result.value) {
-                                        thread.sleep(1000);
-                                    }
+                                    footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
+                                }).then(() => {
+                                    thread.sleep(1000);
+                                    isProcessingScan = false;
                                 });
-                            } else {
-                                scanned.add(result.value);
-                                lastScanned = result.value;
-                                handleData(result.value, "manual");
                             }
-                        })
-                }
+                        } else {
+                            scanned.add(decodedText);
+                            lastScanned = decodedText;
+                            handleData(decodedText, "qr");
+                            isProcessingScan = false;
+                        }
+                    };
 
-                const toggle_camera = () => {
-                    if (!allowed) return;
-                    let btn = document.getElementById("toggle_camera");
-                    if (camera_is_on) {
-                        html5QrCode.stop();
-                        camera_is_on = false;
-                        btn.innerHTML = "הפעל מצלמה";
-                    } else {
-                        html5QrCode.start({
-                            facingMode: "environment"
-                        }, config, qrCodeSuccessCallback);
-                        camera_is_on = true;
-                        btn.innerHTML = "סגור מצלמה";
+
+                    const config = {
+                        fps: 60,
+                        qrbox: Math.min(width * 0.8, 540) * 0.4
+                    };
+
+                    var camera_is_on;
+                    fetchEventDetails.then(result => {
+                        if (!result) {
+                            allowed = false;
+                            camera_is_on = true;
+                        } else {
+                            // Start back camera
+                            html5QrCode.start({
+                                facingMode: "environment"
+                            }, config, qrCodeSuccessCallback);
+                            camera_is_on = true;
+                            allowed = true;
+                        }
+                    });
+
+                    const manual = () => {
+                        if (!allowed) return;
+                        Swal.fire({
+                                title: "הכנס תעודת זהות",
+                                input: "number"
+                            })
+                            .then(result => {
+                                if (scanned.has(result.value) && lastScanned != result.value) {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "שגיאה",
+                                        text: "המשתתף רשום כבר לאירוע",
+                                        footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                                    }).then((result) => {
+                                        if (result.value) {
+                                            thread.sleep(1000);
+                                        }
+                                    });
+                                } else {
+                                    scanned.add(result.value);
+                                    lastScanned = result.value;
+                                    handleData(result.value, "manual");
+                                }
+                            })
                     }
-                }
-            });
+
+                    const toggle_camera = () => {
+                        if (!allowed) return;
+                        let btn = document.getElementById("toggle_camera");
+                        if (camera_is_on) {
+                            html5QrCode.stop();
+                            camera_is_on = false;
+                            btn.innerHTML = "הפעל מצלמה";
+                        } else {
+                            html5QrCode.start({
+                                facingMode: "environment"
+                            }, config, qrCodeSuccessCallback);
+                            camera_is_on = true;
+                            btn.innerHTML = "סגור מצלמה";
+                        }
+                    }
+                });
         }
     </script>
 </head>
