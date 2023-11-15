@@ -150,90 +150,93 @@
             const red = "red",
                 green = "green";
 
-            const fetchEventDetails = new Promise((callback) => {
-                if (!allowed) return;
-                const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
-                let data = {
-                    event: event
-                };
-                fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    }).then(response => {
-                        return response.json().then(json => {
-                            return {
-                                statusCode: response.status,
-                                body: json
-                            };
-                        });
-                    })
-                    .then(data => {
-                        let status = data.statusCode;
-                        if (status == 200) {
-                            let body = data.body;
-                            let registrants = body.registrants;
-                            let details = body.event;
-                            if (details != null) {
-                                let header = document.getElementById("event_header");
-                                let event_date = new Date(details.pcfeventstartdate);
-                                header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
-                                let style = header.style;
-                                style.display = "block";
-                            }
-                            registrants.forEach(registrant => {
-
-
-                                counter++;
-                                scanned.add(registrant.pcfid);
-
-                                let tbl = document.getElementsByTagName("tbody")[0];
-                                var row = tbl.insertRow(0);
-
-                                // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-
-                                var cell1 = row.insertCell(0);
-                                var cell2 = row.insertCell(1);
-                                var cell3 = row.insertCell(2);
-                                var cell4 = row.insertCell(3);
-                                var cell5 = row.insertCell(4);
-                                // Add some text to the new cells:
-                                let d = new Date(registrant.pcfsignupdate);
-                                cell1.innerHTML = counter;
-                                cell2.innerHTML = registrant.pcfcontactidname;
-                                cell3.innerHTML = registrant.pcfid;
-                                cell4.innerHTML = registrant.pcfispaidname;
-                                cell4.style.color = registrant.pcfispaid == 1 ? green : red;
-                                cell5.innerHTML = registrant.pcfprice;
-                                callback(true);
+            const fetchEventDetails = (callback) => {
+                return new Promise((resolve) => {
+                    if (!allowed) return;
+                    const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
+                    let data = {
+                        event: event
+                    };
+                    fetch(webhookUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        }).then(response => {
+                            return response.json().then(json => {
+                                return {
+                                    statusCode: response.status,
+                                    body: json
+                                };
                             });
-                        } else {
+                        })
+                        .then(data => {
+                            let status = data.statusCode;
+                            if (status == 200) {
+                                let body = data.body;
+                                let registrants = body.registrants;
+                                let details = body.event;
+                                if (details != null) {
+                                    let header = document.getElementById("event_header");
+                                    let event_date = new Date(details.pcfeventstartdate);
+                                    header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
+                                    let style = header.style;
+                                    style.display = "block";
+                                }
+                                registrants.forEach(registrant => {
+
+
+                                    counter++;
+                                    scanned.add(registrant.pcfid);
+
+                                    let tbl = document.getElementsByTagName("tbody")[0];
+                                    var row = tbl.insertRow(0);
+
+                                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+
+                                    var cell1 = row.insertCell(0);
+                                    var cell2 = row.insertCell(1);
+                                    var cell3 = row.insertCell(2);
+                                    var cell4 = row.insertCell(3);
+                                    var cell5 = row.insertCell(4);
+                                    // Add some text to the new cells:
+                                    let d = new Date(registrant.pcfsignupdate);
+                                    cell1.innerHTML = counter;
+                                    cell2.innerHTML = registrant.pcfcontactidname;
+                                    cell3.innerHTML = registrant.pcfid;
+                                    cell4.innerHTML = registrant.pcfispaidname;
+                                    cell4.style.color = registrant.pcfispaid == 1 ? green : red;
+                                    cell5.innerHTML = registrant.pcfprice;
+                                    resolve(true);
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "שגיאה",
+                                    html: "<div dir='rtl'>" + data.body.message + "</div>",
+                                    footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                                });
+                                allowed = false;
+                                resolve(false);
+
+                            }
+
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            allowed = false;
                             Swal.fire({
                                 icon: "error",
                                 title: "שגיאה",
                                 html: "<div dir='rtl'>" + data.body.message + "</div>",
                                 footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
                             });
-                            allowed = false;
-                            callback(false);
-
-                        }
-
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                        allowed = false;
-                        Swal.fire({
-                            icon: "error",
-                            title: "שגיאה",
-                            html: "<div dir='rtl'>" + data.body.message + "</div>",
-                            footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                            resolve(false);
                         });
-                        callback(false);
-                    });
-            });
+                });
+            };
+
 
 
 
@@ -358,20 +361,28 @@
             var camera_is_on;
 
 
-            fetchEventDetails.then(result => {
-                if (!result) {
-                    allowed = false;
-                    camera_is_on = true;
-                } else {
-                    // Start back camera
-                    html5QrCode.start({
-                        facingMode: "environment"
-                    }, config, qrCodeSuccessCallback);
-                    camera_is_on = true;
-                    allowed = true;
+            Swal.fire({
+                title: "האם לטעון את רשימת הנרשמים?",
+                showDenyButton: true,
+                confirmButtonText: "כן",
+                denyButtonText: `לא`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    return true;
+                } else if (result.isDenied) {
+                    return false;
                 }
+            }).then((result) => {
+                if (result) {
+                    fetchEventDetails();
+                }
+                html5QrCode.start({
+                    facingMode: "environment"
+                }, config, qrCodeSuccessCallback);
+                camera_is_on = true;
+                allowed = true;
             });
-
 
 
             const manual = () => {
