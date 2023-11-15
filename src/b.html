@@ -128,308 +128,297 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            let version = "3.4.2";
+            const version = "3.4.2";
+            var allowed = true;
             let debug = true;
-            var allowed;
-            if (debug) {
-                Swal.fire({
-                    title: "האם לטעון? גרסה " + version,
-                    showCancelButton: false,
-                    showDenyButton: true,
-                    confirmButtonText: "כן",
-                    denyButtonText: "לא",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        allowed = true;
-                    } else {
-                        allowed = false;
-                    }
-                }).then(() => {
-                    allowed = true;
-                    initializeQrCodeReader()
-                });
-
-            } else {
-                allowed = true;
-                initializeQrCodeReader();
-            }
-
-            const initializeQrCodeReader = () => {
-
-                const html5QrCode = new Html5Qrcode("reader");
-                const reader = document.getElementById("reader");
-                let isProcessingScan = false;
-                var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-                reader.style.width = Math.min(width * 0.8, 540) + "px";
-                reader.style.marginTop = "-8px";
-                const queryString = window.location.search;
-                const urlParams = new URLSearchParams(queryString);
-                const event = urlParams.get('event');
-                var scanned = new Set();
-                var lastScanned;
-                var counter = 0;
-                const red = "red",
-                    green = "green";
-                const fetchEventDetails = new Promise((callback) => {
-                    if (!allowed) return;
-                    const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
-                    let data = {
-                        event: event
-                    };
-                    fetch(webhookUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(data)
-                        }).then(response => {
-                            return response.json().then(json => {
-                                return {
-                                    statusCode: response.status,
-                                    body: json
-                                };
-                            });
-                        })
-                        .then(data => {
-                            let status = data.statusCode;
-                            if (status == 200) {
-                                let body = data.body;
-                                let registrants = body.registrants;
-                                let details = body.event;
-                                if (details != null) {
-                                    let header = document.getElementById("event_header");
-                                    let event_date = new Date(details.pcfeventstartdate);
-                                    header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
-                                    let style = header.style;
-                                    style.display = "block";
-                                }
-                                registrants.forEach(registrant => {
 
 
-                                    counter++;
-                                    scanned.add(registrant.pcfid);
 
-                                    let tbl = document.getElementsByTagName("tbody")[0];
-                                    var row = tbl.insertRow(0);
 
-                                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+            const html5QrCode = new Html5Qrcode("reader");
+            const reader = document.getElementById("reader");
+            let isProcessingScan = false;
+            var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+            reader.style.width = Math.min(width * 0.8, 540) + "px";
+            reader.style.marginTop = "-8px";
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const event = urlParams.get('event');
+            var scanned = new Set();
+            var lastScanned;
+            var counter = 0;
+            const red = "red",
+                green = "green";
 
-                                    var cell1 = row.insertCell(0);
-                                    var cell2 = row.insertCell(1);
-                                    var cell3 = row.insertCell(2);
-                                    var cell4 = row.insertCell(3);
-                                    var cell5 = row.insertCell(4);
-                                    // Add some text to the new cells:
-                                    let d = new Date(registrant.pcfsignupdate);
-                                    cell1.innerHTML = counter;
-                                    cell2.innerHTML = registrant.pcfcontactidname;
-                                    cell3.innerHTML = registrant.pcfid;
-                                    cell4.innerHTML = registrant.pcfispaidname;
-                                    cell4.style.color = registrant.pcfispaid == 1 ? green : red;
-                                    cell5.innerHTML = registrant.pcfprice;
-                                    callback(true);
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "שגיאה",
-                                    html: "<div dir='rtl'>" + data.body.message + "</div>",
-                                    footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                                });
-                                allowed = false;
-                                callback(false);
-
+            const fetchEventDetails = new Promise((callback) => {
+                if (!allowed) return;
+                const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
+                let data = {
+                    event: event
+                };
+                fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => {
+                        return response.json().then(json => {
+                            return {
+                                statusCode: response.status,
+                                body: json
+                            };
+                        });
+                    })
+                    .then(data => {
+                        let status = data.statusCode;
+                        if (status == 200) {
+                            let body = data.body;
+                            let registrants = body.registrants;
+                            let details = body.event;
+                            if (details != null) {
+                                let header = document.getElementById("event_header");
+                                let event_date = new Date(details.pcfeventstartdate);
+                                header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
+                                let style = header.style;
+                                style.display = "block";
                             }
+                            registrants.forEach(registrant => {
 
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            allowed = false;
+
+                                counter++;
+                                scanned.add(registrant.pcfid);
+
+                                let tbl = document.getElementsByTagName("tbody")[0];
+                                var row = tbl.insertRow(0);
+
+                                // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+
+                                var cell1 = row.insertCell(0);
+                                var cell2 = row.insertCell(1);
+                                var cell3 = row.insertCell(2);
+                                var cell4 = row.insertCell(3);
+                                var cell5 = row.insertCell(4);
+                                // Add some text to the new cells:
+                                let d = new Date(registrant.pcfsignupdate);
+                                cell1.innerHTML = counter;
+                                cell2.innerHTML = registrant.pcfcontactidname;
+                                cell3.innerHTML = registrant.pcfid;
+                                cell4.innerHTML = registrant.pcfispaidname;
+                                cell4.style.color = registrant.pcfispaid == 1 ? green : red;
+                                cell5.innerHTML = registrant.pcfprice;
+                                callback(true);
+                            });
+                        } else {
                             Swal.fire({
                                 icon: "error",
                                 title: "שגיאה",
                                 html: "<div dir='rtl'>" + data.body.message + "</div>",
                                 footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
                             });
+                            allowed = false;
                             callback(false);
-                        });
-                });
 
+                        }
 
-
-                const handleData = (decodedText, method) => {
-                    if (!allowed) return;
-                    if (decodedText == "" || decodedText == null || decodedText <= 0 || !/^\d+$/.test(decodedText)) {
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        allowed = false;
                         Swal.fire({
                             icon: "error",
                             title: "שגיאה",
-                            html: "<div dir='rtl'>אנא הכנס מספר בלבד</div>",
+                            html: "<div dir='rtl'>" + data.body.message + "</div>",
                             footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
                         });
-                        return;
-                    }
-                    const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
-                    // Data to be sent in the request
-                    let data = {
-                        barcode: decodedText,
-                        event: event,
-                        valid: event != null ? true : false,
-                        registration_date: new Date(),
-                        method: method
-                    };
-                    fetch(webhookUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(data)
-                        }).then(response => {
-                            return response.json().then(json => {
-                                return {
-                                    statusCode: response.status,
-                                    body: json
-                                };
-                            });
-                        })
-                        .then(data => {
-                            let status = data.statusCode;
-                            let body = data.body;
-                            if (status == 200) {
-                                counter++;
-
-                                let tbl = document.getElementsByTagName("tbody")[0];
-                                var row = tbl.insertRow(0);
-
-                                // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-                                var cell1 = row.insertCell(0);
-                                var cell2 = row.insertCell(1);
-                                var cell3 = row.insertCell(2);
-                                var cell4 = row.insertCell(3);
-                                var cell5 = row.insertCell(4);
-
-                                // Add some text to the new cells:
-                                let d = new Date(body.expiry);
-                                cell1.innerHTML = counter;
-                                cell2.innerHTML = body.name;
-                                cell3.innerHTML = body.id;
-                                cell4.innerHTML = body.ispaid;
-                                cell4.style.color = body.ispaid == "כן" ? green : red;
-                                cell5.innerHTML = body.price;
-                                let txt = "שם: " + body.name;
-                                if (body.ispaid == "לא") {
-                                    txt += "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
-                                }
-                                console.log(body);
-                                //cell4.innerHTML = d.toLocaleDateString("en-US");
-                                Swal.fire({
-                                    title: `המשתתף נרשם בהצלחה`,
-                                    html: txt,
-                                    icon: "success"
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "שגיאה",
-                                    html: "<div dir='rtl'>" + data.body.message + "</div>",
-                                    footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                                });
-                            }
-                        })
-                        .catch((error) => {
-                                console.error('Error:', error);
-                                alert("Error")
-
-                            }
-                        }
-
-
-                    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                        if (isProcessingScan) return;
-                        isProcessingScan = true;
-                        if (scanned.has(decodedText)) {
-
-                            if (lastScanned != decodedText) {
-                                Swal.fire({
-                                    icon: "warning",
-                                    title: "שגיאה",
-                                    text: "המשתתף רשום כבר לאירוע",
-                                    footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
-                                }).then(() => {
-                                    thread.sleep(1000);
-                                    isProcessingScan = false;
-                                });
-                            }
-                        } else {
-                            scanned.add(decodedText);
-                            lastScanned = decodedText;
-                            handleData(decodedText, "qr");
-                            isProcessingScan = false;
-                        }
-                    };
-
-
-                    const config = {
-                        fps: 60,
-                        qrbox: Math.min(width * 0.8, 540) * 0.4
-                    };
-
-                    var camera_is_on;
-                    fetchEventDetails.then(result => {
-                        if (!result) {
-                            allowed = false;
-                            camera_is_on = true;
-                        } else {
-                            // Start back camera
-                            html5QrCode.start({
-                                facingMode: "environment"
-                            }, config, qrCodeSuccessCallback);
-                            camera_is_on = true;
-                            allowed = true;
-                        }
+                        callback(false);
                     });
+            });
 
-                    const manual = () => {
-                        if (!allowed) return;
-                        Swal.fire({
-                                title: "הכנס תעודת זהות",
-                                input: "number"
-                            })
-                            .then(result => {
-                                if (scanned.has(result.value) && lastScanned != result.value) {
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "שגיאה",
-                                        text: "המשתתף רשום כבר לאירוע",
-                                        footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                                    }).then((result) => {
-                                        if (result.value) {
-                                            thread.sleep(1000);
-                                        }
-                                    });
-                                } else {
-                                    scanned.add(result.value);
-                                    lastScanned = result.value;
-                                    handleData(result.value, "manual");
-                                }
-                            })
-                    }
 
-                    const toggle_camera = () => {
-                        if (!allowed) return;
-                        let btn = document.getElementById("toggle_camera");
-                        if (camera_is_on) {
-                            html5QrCode.stop();
-                            camera_is_on = false;
-                            btn.innerHTML = "הפעל מצלמה";
+
+            const handleData = (decodedText, method) => {
+                if (!allowed) return;
+                if (decodedText == "" || decodedText == null || decodedText <= 0 || !/^\d+$/.test(decodedText)) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "שגיאה",
+                        html: "<div dir='rtl'>אנא הכנס מספר בלבד</div>",
+                        footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                    });
+                    return;
+                }
+                const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
+                // Data to be sent in the request
+                let data = {
+                    barcode: decodedText,
+                    event: event,
+                    valid: event != null ? true : false,
+                    registration_date: new Date(),
+                    method: method
+                };
+                fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => {
+                        return response.json().then(json => {
+                            return {
+                                statusCode: response.status,
+                                body: json
+                            };
+                        });
+                    })
+                    .then(data => {
+                        let status = data.statusCode;
+                        let body = data.body;
+                        if (status == 200) {
+                            counter++;
+
+                            let tbl = document.getElementsByTagName("tbody")[0];
+                            var row = tbl.insertRow(0);
+
+                            // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+                            var cell1 = row.insertCell(0);
+                            var cell2 = row.insertCell(1);
+                            var cell3 = row.insertCell(2);
+                            var cell4 = row.insertCell(3);
+                            var cell5 = row.insertCell(4);
+
+                            // Add some text to the new cells:
+                            let d = new Date(body.expiry);
+                            cell1.innerHTML = counter;
+                            cell2.innerHTML = body.name;
+                            cell3.innerHTML = body.id;
+                            cell4.innerHTML = body.ispaid;
+                            cell4.style.color = body.ispaid == "כן" ? green : red;
+                            cell5.innerHTML = body.price;
+                            let txt = "שם: " + body.name;
+                            if (body.ispaid == "לא") {
+                                txt += "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
+                            }
+                            console.log(body);
+                            //cell4.innerHTML = d.toLocaleDateString("en-US");
+                            Swal.fire({
+                                title: `המשתתף נרשם בהצלחה`,
+                                html: txt,
+                                icon: "success"
+                            });
                         } else {
-                            html5QrCode.start({
-                                facingMode: "environment"
-                            }, config, qrCodeSuccessCallback);
-                            camera_is_on = true;
-                            btn.innerHTML = "סגור מצלמה";
+                            Swal.fire({
+                                icon: "error",
+                                title: "שגיאה",
+                                html: "<div dir='rtl'>" + data.body.message + "</div>",
+                                footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
+                            });
                         }
-                    }
+                    })
+
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert("Error");
+
                 });
+            }
+
+
+
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                if (isProcessingScan) return;
+                isProcessingScan = true;
+                if (scanned.has(decodedText)) {
+
+                    if (lastScanned != decodedText) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "שגיאה",
+                            text: "המשתתף רשום כבר לאירוע",
+                            footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
+                        }).then(() => {
+                            thread.sleep(1000);
+                            isProcessingScan = false;
+                        });
+                    }
+                } else {
+                    scanned.add(decodedText);
+                    lastScanned = decodedText;
+                    handleData(decodedText, "qr");
+                    isProcessingScan = false;
+                }
+            };
+
+
+            const config = {
+                fps: 60,
+                qrbox: Math.min(width * 0.8, 540) * 0.4
+            };
+
+            var camera_is_on;
+
+
+            fetchEventDetails.then(result => {
+                if (!result) {
+                    allowed = false;
+                    camera_is_on = true;
+                } else {
+                    // Start back camera
+                    html5QrCode.start({
+                        facingMode: "environment"
+                    }, config, qrCodeSuccessCallback);
+                    camera_is_on = true;
+                    allowed = true;
+                }
+            });
+
+
+
+            const manual = () => {
+                if (!allowed) return;
+                Swal.fire({
+                        title: "הכנס תעודת זהות",
+                        input: "number"
+                    })
+                    .then(result => {
+                        if (scanned.has(result.value) && lastScanned != result.value) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "שגיאה",
+                                text: "המשתתף רשום כבר לאירוע",
+                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
+                            }).then((result) => {
+                                if (result.value) {
+                                    thread.sleep(1000);
+                                }
+                            });
+                        } else {
+                            scanned.add(result.value);
+                            lastScanned = result.value;
+                            handleData(result.value, "manual");
+                        }
+                    })
+            }
+
+            const toggle_camera = () => {
+                if (!allowed) return;
+                let btn = document.getElementById("toggle_camera");
+                if (camera_is_on) {
+                    html5QrCode.stop();
+                    camera_is_on = false;
+                    btn.innerHTML = "הפעל מצלמה";
+                } else {
+                    html5QrCode.start({
+                        facingMode: "environment"
+                    }, config, qrCodeSuccessCallback);
+                    camera_is_on = true;
+                    btn.innerHTML = "סגור מצלמה";
+                }
+            }
+            const manual_btn = document.getElementById("manual");
+            manual_btn.addEventListener("click", manual);
+            const toggle_camera_btn = document.getElementById("toggle_camera");
+            toggle_camera_btn.addEventListener("click", toggle_camera);
         }
     </script>
 </head>
@@ -439,15 +428,11 @@
 <body>
     <div style="display: none;" class="event_header" id="event_header"></div>
     <div id="reader"></div>
-
-
-
-
     <div class="data_container">
         <div class="btn_container">
-            <a class="btn" id="toggle_camera" onclick="toggle_camera()">סגור מצלמה</a>
+            <a class="btn" id="toggle_camera">סגור מצלמה</a>
 
-            <a class="btn" onclick="manual()"><span><svg xmlns="http://www.w3.org/2000/svg" height="1em"
+            <a class="btn" id="manual"><span><svg xmlns="http://www.w3.org/2000/svg" height="1em"
                         viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
                         <path
                             d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
