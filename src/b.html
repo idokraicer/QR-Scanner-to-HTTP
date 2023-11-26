@@ -102,11 +102,26 @@
             box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
             -webkit-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
             -moz-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
+            outline: 1px solid rgba(0, 0, 0, 0.6);
             transition: all .5s;
         }
         
         .btn svg {
             fill: white;
+            margin-right: 0.5ch;
+            margin-bottom: -0.2ch;
+        }
+        
+        .btn.refresh {
+            padding-right: 0.5em;
+        }
+        
+        .btn.refresh svg:not(.active) {
+            animation: none;
+        }
+        
+        .btn.refresh svg:hover {
+            animation: refresh 0.8s ease-in-out 2 forwards;
         }
         
         .event_header {
@@ -123,16 +138,25 @@
         .event_header div:nth-of-type(2) {
             margin-bottom: 18px;
         }
+        /* Refresh Animation */
+        
+        @keyframes refresh {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(359deg);
+            }
+        }
     </style>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.onload = () => {
-            const version = "3.5";
+            const version = "3.6";
             var allowed = true;
             let debug = true;
-
-
+            let members = new Array();
 
 
             const html5QrCode = new Html5Qrcode("reader");
@@ -151,6 +175,8 @@
                 green = "green";
 
             const fetchEventDetails = (callback) => {
+                let tbl = document.getElementsByTagName("tbody")[0];
+                tbl.innerHTML = "";
                 return new Promise((resolve) => {
                     if (!allowed) return;
                     const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
@@ -189,7 +215,7 @@
 
                                     counter++;
                                     scanned.add(registrant.pcfid);
-
+                                    members[registrant.pcfid] = registrant;
                                     let tbl = document.getElementsByTagName("tbody")[0];
                                     var row = tbl.insertRow(0);
 
@@ -241,9 +267,14 @@
 
 
             const handleData = (decodedText, method) => {
+                console.log(`Handling data: ${decodedText}, method: ${method}`);
                 isProcessingScan = true;
-                if (!allowed) return;
-                if (decodedText == "" || decodedText == null || decodedText <= 0 || !/^\d+$/.test(decodedText)) {
+                if (!allowed) {
+                    console.warn('Scanning not allowed');
+                    return;
+                }
+                if (!/^\d{4,9}$/.test(decodedText)) {
+                    console.error(`Invalid input: ${decodedText}`);
                     Swal.fire({
                         icon: "error",
                         title: "שגיאה",
@@ -261,6 +292,7 @@
                     registration_date: new Date(),
                     method: method
                 };
+                console.log(`Sending data to webhook: ${JSON.stringify(data)}`);
                 fetch(webhookUrl, {
                         method: 'POST',
                         headers: {
@@ -397,8 +429,18 @@
                         fetchEventDetails();
                     }
                     html5QrCode.start({
-                        facingMode: "environment"
-                    }, config, qrCodeSuccessCallback);
+                            facingMode: "environment"
+                        }, config, qrCodeSuccessCallback)
+                        .catch(error => {
+                            console.error("Error starting camera:", error);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error starting camera",
+                                text: "Could not start video source. Please Refresh this page and try again."
+                            });
+                            allowed = false;
+                            camera_is_on = false;
+                        });
                     camera_is_on = true;
                     allowed = true;
                 });
@@ -406,23 +448,42 @@
 
             const manual = () => {
                 if (!allowed) return;
+                if (camera_is_on) {
+                    html5QrCode.stop();
+                }
                 Swal.fire({
                         title: "הכנס תעודת זהות",
-                        input: "number"
+                        input: "number",
+                        didClose: () => {
+                            if (camera_is_on) {
+                                html5QrCode.start({
+                                        facingMode: "environment"
+                                    }, config, qrCodeSuccessCallback)
+                                    .catch(error => {
+                                        console.error("Error starting camera:", error);
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Error starting camera",
+                                            text: "Could not start video source. Please Refresh this page and try again."
+                                        });
+                                        allowed = false;
+                                        camera_is_on = false;
+                                    });
+                            }
+                        }
                     })
                     .then(result => {
+                        console.log(result);
+                        if (result.isDismissed) return;
                         if (scanned.has(result.value) && lastScanned != result.value) {
                             Swal.fire({
                                 icon: "error",
                                 title: "שגיאה",
                                 text: "המשתתף רשום כבר לאירוע",
                                 footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                            }).then((result) => {
-                                if (result.value) {
-                                    thread.sleep(1000);
-                                }
                             });
                         } else {
+                            if (result.value == null || result.value.trim() == '') return;
                             scanned.add(result.value);
                             lastScanned = result.value;
                             handleData(result.value, "manual");
@@ -439,8 +500,18 @@
                     btn.innerHTML = "הפעל מצלמה";
                 } else {
                     html5QrCode.start({
-                        facingMode: "environment"
-                    }, config, qrCodeSuccessCallback);
+                            facingMode: "environment"
+                        }, config, qrCodeSuccessCallback)
+                        .catch(error => {
+                            console.error("Error starting camera:", error);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error starting camera",
+                                text: "Could not start video source. Please Refresh this page and try again."
+                            });
+                            allowed = false;
+                            camera_is_on = false;
+                        });
                     camera_is_on = true;
                     btn.innerHTML = "סגור מצלמה";
                 }
@@ -449,6 +520,35 @@
             manual_btn.addEventListener("click", manual);
             const toggle_camera_btn = document.getElementById("toggle_camera");
             toggle_camera_btn.addEventListener("click", toggle_camera);
+            const refresh_btn = document.getElementById('refresh');
+            const refresh_time = 0.5;
+            refresh_btn.addEventListener("click", () => {
+                if (!allowed) return;
+                console.log("Refreshing data");
+                counter = 0;
+                refresh_btn.getElementsByTagName("svg")[0].style.animation = "refresh " + refresh_time + "s ease-in-out " + refresh_time * 2 + "s 2 forwards";
+
+                setTimeout(() => {
+                    fetchEventDetails();
+                    refresh_btn.getElementsByTagName("svg")[0].style.animation = "";
+                }, refresh_time * 4);
+
+            });
+            /*const ths = document.getElementsByTagName("th");
+            console.log(ths);
+            Array.from(ths).forEach((element) => {
+                element.addEventListener("click", (e) => {
+                    const id = e.target.id;
+                    if (id == "by_sum") {
+                        console.log(Array.from(members));
+                        Array.from(members).sort((a, b) => {
+                            return a - b > 0;
+                        }).forEach((id) => {
+                            console.log(id);
+                        })
+                    }
+                });
+            })*/
         }
     </script>
 </head>
@@ -460,6 +560,9 @@
     <div id="reader"></div>
     <div class="data_container">
         <div class="btn_container">
+            <a class="btn refresh" id="refresh">
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg>
+            </a>
             <a class="btn" id="toggle_camera">סגור מצלמה</a>
 
             <a class="btn" id="manual"><span><svg xmlns="http://www.w3.org/2000/svg" height="1em"
@@ -468,15 +571,16 @@
                             d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
                     </svg></span> הכנסה ידנית
             </a>
+
         </div>
         <table class="styled-table" id="tbl">
             <thead>
                 <tr>
-                    <th class="tlb">מס"ד</th>
-                    <th>שם מלא</th>
-                    <th>תעודת זהות</th>
-                    <th>האם שולם</th>
-                    <th class="trb">סכום</th>
+                    <th id="by_serial" class="tlb">מס"ד</th>
+                    <th id="by_name">שם מלא</th>
+                    <th id="by_id">תעודת זהות</th>
+                    <th id="by_paid">האם שולם</th>
+                    <th id="by_sum" class="trb">סכום</th>
                 </tr>
             </thead>
             <tbody></tbody>
