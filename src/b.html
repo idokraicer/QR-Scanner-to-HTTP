@@ -374,12 +374,12 @@
 
 
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                lastScanned = decodedText;
+                lastScanned = decodedText.trim();
                 if (isProcessingScan) return;
                 isProcessingScan = true;
-                if (scanned.has(decodedText)) {
+                if (scanned.has(decodedText.trim())) {
 
-                    if (lastScanned.toLowerCase() !== decodedText.toLowerCase()) {
+                    if (lastScanned.toLowerCase() !== decodedText.toLowerCase().trim()) {
 
                         Swal.fire({
                             icon: "warning",
@@ -392,9 +392,9 @@
                         });
                     } else {}
                 } else {
-                    scanned.add(decodedText);
+                    scanned.add(decodedText.trim());
                     console.log(3);
-                    handleData(decodedText, "qr");
+                    handleData(decodedText.trim(), "qr");
                 }
                 isProcessingScan = false;
             };
