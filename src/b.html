@@ -155,7 +155,7 @@
         window.onload = () => {
             const version = "4.0";
             var allowed = true;
-            let debug = true;
+            let debug = false;
             let members = new Array();
 
 
@@ -280,7 +280,7 @@
                     console.warn('Scanning not allowed');
                     return;
                 }
-                if (!/^\d{4,9}$/.test(decodedText)) {
+                if (!/^\d{4,9}$/.test(decodedText.trim())) {
                     console.error(`Invalid input: ${decodedText}`);
                     Swal.fire({
                         icon: "error",
@@ -380,7 +380,7 @@
                 if (scanned.has(decodedText)) {
 
                     if (lastScanned.toLowerCase() !== decodedText.toLowerCase()) {
-                        console.log(1);
+
                         Swal.fire({
                             icon: "warning",
                             title: "שגיאה",
@@ -390,9 +390,7 @@
                             thread.sleep(1000);
                             isProcessingScan = false;
                         });
-                    } else {
-                        console.log(2);
-                    }
+                    } else {}
                 } else {
                     scanned.add(decodedText);
                     console.log(3);
@@ -523,6 +521,7 @@
                     btn.innerHTML = "סגור מצלמה";
                 }
             }
+            console.log("Test: " + !/^\d{4,9}$/.test("12345"));
             const manual_btn = document.getElementById("manual");
             manual_btn.addEventListener("click", manual);
             const toggle_camera_btn = document.getElementById("toggle_camera");
