@@ -374,12 +374,13 @@
 
 
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                lastScanned = decodedText.trim();
+                let id = decodedText.trim();
+                lastScanned = id;
                 if (isProcessingScan) return;
                 isProcessingScan = true;
-                if (scanned.has(decodedText.trim())) {
+                if (scanned.has(id)) {
 
-                    if (lastScanned.toLowerCase() !== decodedText.toLowerCase().trim()) {
+                    if (lastScanned.toLowerCase() != id.toLowerCase()) {
 
                         Swal.fire({
                             icon: "warning",
@@ -392,9 +393,9 @@
                         });
                     } else {}
                 } else {
-                    scanned.add(decodedText.trim());
+                    scanned.add(id);
                     console.log(3);
-                    handleData(decodedText.trim(), "qr");
+                    handleData(id, "qr");
                 }
                 isProcessingScan = false;
             };
@@ -624,3 +625,25 @@
 </body>
 
 </html>
+"
+<style>
+    .wati {
+        color: black;
+        height: 25px !important;
+        font-size: 16px;
+        text-decoration: none;
+        display: block;
+        border-radius: 20px;
+        border: 1px solid #25D366;
+        padding: 10px 15px 6px
+    }
+    
+    .wati:hover {
+        cursor: pointer;
+        color: white !important;
+        background-color: #25D366;
+        border-color: white !important;
+        text-decoration: none;
+        transition: .5s all;
+    }
+</style>" +
