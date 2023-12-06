@@ -162,7 +162,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       window.onload = () => {
-        const version = "4.0";
+        const version = "5.0";
         var allowed = true;
         let debug = true;
         let members = new Array();
@@ -468,11 +468,6 @@
                         });
                       }
                     });
-
-                    console.log("Adding to CRM");
-                    // Add Contact to CRM and register to event
-
-                    //registerToEvent(event, body.contactid);
                   }
                   isProcessingScan = false;
                 });
@@ -621,26 +616,6 @@
             title: "הכנס תעודת זהות",
             input: "number",
             didClose: () => {
-              /*if (camera_is_on) {
-                html5QrCode
-                  .start(
-                    {
-                      facingMode: "environment",
-                    },
-                    config,
-                    qrCodeSuccessCallback
-                  )
-                  .catch((error) => {
-                    console.error("Error starting camera:", error);
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error starting camera",
-                      text: "Could not start video source. Please Refresh this page and try again.",
-                    });
-                    allowed = false;
-                    camera_is_on = false;
-                  });
-              }*/
               toggle_camera();
             },
           }).then((result) => {
