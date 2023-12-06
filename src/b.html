@@ -182,31 +182,6 @@
         const red = "red",
           green = "green";
 
-        const stressTest = () => {
-          // Generate sample data for 6000 registrants
-          console.log("Generating sample data");
-          for (let i = members.length; i < 6000; i++) {
-            let id = i;
-            let registration_date = new Date();
-            let method = "test";
-            scanned.add(id);
-            // Add to members array
-            members[i] = {
-              key: id,
-              value: {
-                pcfid: id,
-                pcfcontactidname: `Name ${i}`,
-                pcfispaidname: "כן",
-                pcfprice: 111,
-                pcfispaid: 1,
-              },
-            };
-          }
-
-          console.log(scanned);
-          console.log(members);
-        };
-
         const fetchEventDetails = (callback) => {
           let tbl = document.getElementsByTagName("tbody")[0];
           tbl.innerHTML = "";
@@ -550,7 +525,6 @@
             }
           } else {
             scanned.add(id);
-            console.log(3);
             handleData(id, "qr");
           }
           isProcessingScan = false;
@@ -647,7 +621,6 @@
           const webhookUrl =
             "https://hook.eu2.make.com/4ha8k5y40v57r2ej8t5ru7917gcpwmvv";
           // Data to be sent in the request
-          console.log("Inside Registering to event");
           let date = Date.now();
 
           let data = {
@@ -675,10 +648,6 @@
             })
             .then((data) => {
               let status = data.statusCode;
-              console.log("Data:");
-              console.log(data);
-              console.log("Status:");
-              console.log(status);
               if (status == 200) {
                 Swal.fire({
                   icon: "success",
@@ -798,7 +767,6 @@
             let tbl = document.getElementsByTagName("tbody")[0];
             tbl.innerHTML = "";
 
-            if (debug) stressTest();
             members.forEach((member) => {
               let row = tbl.insertRow(0);
               let cell1 = row.insertCell(0);
