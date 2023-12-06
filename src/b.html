@@ -1,649 +1,892 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>הרשמה לאירועים - ההסתדרות לרפואת שיניים</title>
     <style>
-        .data_container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            margin-top: 10px;
-            width: 80%;
+      .data_container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin-top: 10px;
+        width: calc(100% - 3rem);
+        margin-inline: auto;
+      }
+
+      .styled-table {
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        width: 100%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        justify-content: space-around;
+      }
+
+      .styled-table thead tr {
+        background-color: #009879;
+        color: #ffffff;
+        text-align: center;
+      }
+
+      th {
+        cursor: pointer;
+      }
+
+      .styled-table th,
+      .styled-table td {
+        padding: 12px 15px;
+        width: fit-content;
+        text-align: center;
+      }
+
+      .tlb {
+        border-top-left-radius: 5px;
+        text-align: left !important;
+        width: auto !important;
+        margin: 0 0;
+      }
+
+      .trb {
+        border-top-right-radius: 5px;
+      }
+
+      .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+      }
+
+      .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+      }
+
+      .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+
+      .styled-table tbody tr:hover {
+        color: #009879;
+      }
+
+      .styled-table tbody tr td:first-of-type {
+        text-align: left;
+      }
+
+      body {
+        font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica,
+          Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .btn_container {
+        display: flex;
+        gap: 1em;
+      }
+
+      .btn {
+        background-color: #009879;
+        padding: 8px 12px 10px;
+        justify-content: center;
+        display: block;
+        margin-top: 5px;
+        border-radius: 10px;
+        width: fit-content;
+        color: white;
+        cursor: pointer;
+        transition: all 0.1s;
+      }
+
+      .btn:hover {
+        transform: scale(101%);
+        box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
+        -webkit-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
+        -moz-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
+        outline: 1px solid rgba(0, 0, 0, 0.6);
+        transition: all 0.5s;
+      }
+
+      .btn svg {
+        fill: white;
+        margin-right: 0.5ch;
+        margin-bottom: -0.2ch;
+      }
+
+      .btn.refresh {
+        padding-right: 0.5em;
+      }
+
+      .btn.refresh svg:not(.active) {
+        animation: none;
+      }
+
+      .btn.refresh svg:hover {
+        animation: refresh 0.8s ease-in-out 2 forwards;
+      }
+
+      .event_header {
+        margin-top: "0px";
+      }
+
+      .event_header div {
+        font-size: 2em;
+        text-align: center;
+        font-weight: bold;
+        line-height: 80%;
+      }
+
+      .event_header div:nth-of-type(2) {
+        margin-bottom: 18px;
+      }
+      /* Refresh Animation */
+
+      @keyframes refresh {
+        0% {
+          transform: rotate(0deg);
         }
-        
-        .styled-table {
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 0.9em;
-            font-family: sans-serif;
-            width: 100%;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-            justify-content: space-around;
+        100% {
+          transform: rotate(359deg);
         }
-        
-        .styled-table thead tr {
-            background-color: #009879;
-            color: #ffffff;
-            text-align: center;
-        }
-        
-        .styled-table th,
-        .styled-table td {
-            padding: 12px 15px;
-            width: fit-content;
-            text-align: center;
-        }
-        
-        .tlb {
-            border-top-left-radius: 5px;
-            text-align: left !important;
-            width: auto !important;
-            margin: 0 0;
-        }
-        
-        .trb {
-            border-top-right-radius: 5px;
-        }
-        
-        .styled-table tbody tr {
-            border-bottom: 1px solid #dddddd;
-        }
-        
-        .styled-table tbody tr:nth-of-type(even) {
-            background-color: #f3f3f3;
-        }
-        
-        .styled-table tbody tr:last-of-type {
-            border-bottom: 2px solid #009879;
-            border-bottom-left-radius: 5px;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .styled-table tbody tr:hover {
-            color: #009879;
-        }
-        
-        .styled-table tbody tr td:first-of-type {
-            text-align: left;
-        }
-        
-        body {
-            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .btn_container {
-            display: flex;
-            gap: 1em;
-        }
-        
-        .btn {
-            background-color: #009879;
-            padding: 8px 12px 10px;
-            justify-content: center;
-            display: block;
-            margin-top: 5px;
-            border-radius: 10px;
-            width: fit-content;
-            color: white;
-            cursor: pointer;
-            transition: all .1s;
-        }
-        
-        .btn:hover {
-            transform: scale(101%);
-            box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
-            -webkit-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
-            -moz-box-shadow: 0px 0px 19px 6px rgba(0, 0, 0, 0.35);
-            outline: 1px solid rgba(0, 0, 0, 0.6);
-            transition: all .5s;
-        }
-        
-        .btn svg {
-            fill: white;
-            margin-right: 0.5ch;
-            margin-bottom: -0.2ch;
-        }
-        
-        .btn.refresh {
-            padding-right: 0.5em;
-        }
-        
-        .btn.refresh svg:not(.active) {
-            animation: none;
-        }
-        
-        .btn.refresh svg:hover {
-            animation: refresh 0.8s ease-in-out 2 forwards;
-        }
-        
-        .event_header {
-            margin-top: "0px";
-        }
-        
-        .event_header div {
-            font-size: 2em;
-            text-align: center;
-            font-weight: bold;
-            line-height: 80%;
-        }
-        
-        .event_header div:nth-of-type(2) {
-            margin-bottom: 18px;
-        }
-        /* Refresh Animation */
-        
-        @keyframes refresh {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(359deg);
-            }
-        }
+      }
     </style>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        window.onload = () => {
-            const version = "4.0";
-            var allowed = true;
-            let debug = false;
-            let members = new Array();
+      window.onload = () => {
+        const version = "4.0";
+        var allowed = true;
+        let debug = true;
+        let members = new Array();
 
+        const html5QrCode = new Html5Qrcode("reader");
+        const reader = document.getElementById("reader");
+        let isProcessingScan = false;
+        var width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+        reader.style.width = Math.min(width * 0.8, 540) + "px";
+        reader.style.marginTop = "-8px";
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const event = urlParams.get("event");
+        var scanned = new Set();
+        var lastScanned;
+        var counter = 0;
+        const red = "red",
+          green = "green";
 
-            const html5QrCode = new Html5Qrcode("reader");
-            const reader = document.getElementById("reader");
-            let isProcessingScan = false;
-            var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-            reader.style.width = Math.min(width * 0.8, 540) + "px";
-            reader.style.marginTop = "-8px";
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            const event = urlParams.get('event');
-            var scanned = new Set();
-            var lastScanned;
-            var counter = 0;
-            const red = "red",
-                green = "green";
-
-            const fetchEventDetails = (callback) => {
-                let tbl = document.getElementsByTagName("tbody")[0];
-                tbl.innerHTML = "";
-                while (members.length > 0) {
-                    members.pop();
-                }
-                scanned.clear();
-                return new Promise((resolve) => {
-                    if (!allowed) return;
-                    const webhookUrl = "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
-                    let data = {
-                        event: event
+        const fetchEventDetails = (callback) => {
+          let tbl = document.getElementsByTagName("tbody")[0];
+          tbl.innerHTML = "";
+          while (members.length > 0) {
+            members.pop();
+          }
+          scanned.clear();
+          return new Promise((resolve) => {
+            if (!allowed) return;
+            const webhookUrl =
+              "https://hook.eu2.make.com/eunqygqfu295sb8rzbmbygatmnkrrt7y";
+            let data = {
+              event: event,
+            };
+            fetch(webhookUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            })
+              .then((response) => {
+                return response.json().then((json) => {
+                  return {
+                    statusCode: response.status,
+                    body: json,
+                  };
+                });
+              })
+              .then((data) => {
+                let status = data.statusCode;
+                if (status == 200) {
+                  let body = data.body;
+                  let registrants = body.registrants;
+                  let details = body.event;
+                  if (details != null) {
+                    let header = document.getElementById("event_header");
+                    let event_date = new Date(details.pcfeventstartdate);
+                    header.innerHTML =
+                      "<div>" +
+                      details.pcfeventtypename +
+                      ": " +
+                      details.projectname +
+                      "</div><br /><div>" +
+                      event_date.toLocaleDateString("en-US") +
+                      "</div>";
+                    let style = header.style;
+                    style.display = "block";
+                  }
+                  registrants.forEach((registrant) => {
+                    addDataToTable(registrant);
+                    /*counter++;
+                    scanned.add(registrant.pcfid);
+                    members[counter] = {
+                      key: counter,
+                      value: registrant,
                     };
-                    fetch(webhookUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(data)
-                        }).then(response => {
-                            return response.json().then(json => {
-                                return {
-                                    statusCode: response.status,
-                                    body: json
-                                };
-                            });
-                        })
-                        .then(data => {
-                            let status = data.statusCode;
-                            if (status == 200) {
-                                let body = data.body;
-                                let registrants = body.registrants;
-                                let details = body.event;
-                                if (details != null) {
-                                    let header = document.getElementById("event_header");
-                                    let event_date = new Date(details.pcfeventstartdate);
-                                    header.innerHTML = "<div>" + details.pcfeventtypename + ": " + details.projectname + "</div><br /><div>" + event_date.toLocaleDateString("en-US") + "</div>";
-                                    let style = header.style;
-                                    style.display = "block";
-                                }
-                                registrants.forEach(registrant => {
-
-
-                                    counter++;
-                                    scanned.add(registrant.pcfid);
-                                    members[counter] = {
-                                        key: counter,
-                                        value: registrant
-                                    };
-                                    let tbl = document.getElementsByTagName("tbody")[0];
-                                    var row = tbl.insertRow(0);
-
-                                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-
-                                    var cell1 = row.insertCell(0);
-                                    var cell2 = row.insertCell(1);
-                                    var cell3 = row.insertCell(2);
-                                    var cell4 = row.insertCell(3);
-                                    var cell5 = row.insertCell(4);
-                                    // Add some text to the new cells:
-                                    let d = new Date(registrant.pcfsignupdate);
-                                    cell1.innerHTML = counter;
-                                    cell2.innerHTML = registrant.pcfcontactidname;
-                                    cell3.innerHTML = registrant.pcfid;
-                                    cell4.innerHTML = registrant.pcfispaidname;
-                                    cell4.style.color = registrant.pcfispaid == 1 ? green : red;
-                                    cell5.innerHTML = registrant.pcfprice;
-                                    resolve(true);
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "שגיאה",
-                                    html: "<div dir='rtl'>" + data.body.message + "</div>",
-                                    footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                                });
-                                allowed = false;
-                                resolve(false);
-
-                            }
-
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            allowed = false;
-                            Swal.fire({
-                                icon: "error",
-                                title: "שגיאה",
-                                html: "<div dir='rtl'>" + data.body.message + "</div>",
-                                footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                            });
-                            resolve(false);
-                        });
-                });
-            };
-
-
-
-
-            const handleData = (decodedText, method) => {
-                console.log(`Handling data: ${decodedText}, method: ${method}`);
-                isProcessingScan = true;
-                if (!allowed) {
-                    console.warn('Scanning not allowed');
-                    return;
-                }
-                if (!/^\d{4,9}$/.test(decodedText.trim())) {
-                    console.error(`Invalid input: ${decodedText}`);
-                    Swal.fire({
-                        icon: "error",
-                        title: "שגיאה",
-                        html: "<div dir='rtl'>אנא הכנס מספר בלבד</div>",
-                        footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                    });
-                    return;
-                }
-                const webhookUrl = "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
-                // Data to be sent in the request
-                let data = {
-                    barcode: decodedText,
-                    event: event,
-                    valid: event != null ? true : false,
-                    registration_date: new Date(),
-                    method: method
-                };
-                console.log(`Sending data to webhook: ${JSON.stringify(data)}`);
-                fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    }).then(response => {
-                        return response.json().then(json => {
-                            return {
-                                statusCode: response.status,
-                                body: json
-                            };
-                        });
-                    })
-                    .then(data => {
-                        let status = data.statusCode;
-                        let body = data.body;
-                        if (status == 200) {
-                            counter++;
-
-                            let tbl = document.getElementsByTagName("tbody")[0];
-                            var row = tbl.insertRow(0);
-
-                            // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-                            var cell1 = row.insertCell(0);
-                            var cell2 = row.insertCell(1);
-                            var cell3 = row.insertCell(2);
-                            var cell4 = row.insertCell(3);
-                            var cell5 = row.insertCell(4);
-
-                            // Add some text to the new cells:
-                            let d = new Date(body.expiry);
-                            cell1.innerHTML = counter;
-                            cell2.innerHTML = body.name;
-                            cell3.innerHTML = body.id;
-                            cell4.innerHTML = body.ispaid;
-                            cell4.style.color = body.ispaid == "כן" ? green : red;
-                            cell5.innerHTML = body.price;
-                            let txt = "שם: " + body.name;
-                            if (body.ispaid == "לא") {
-                                txt += "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
-                            }
-                            console.log(body);
-                            //cell4.innerHTML = d.toLocaleDateString("en-US");
-                            Swal.fire({
-                                title: `המשתתף נרשם בהצלחה`,
-                                html: txt,
-                                icon: "success"
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: "error",
-                                title: "שגיאה",
-                                html: "<div dir='rtl'>" + data.body.message + "</div>",
-                                footer: "<div dir='rtl'>" + 'טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM' + "</div>"
-                            }).then(() => {
-                                isProcessingScan = false;
-                            });
-                        }
-
-                    }).then(() => {
-                        isProcessingScan = false;
-                    })
-
-                .catch((error) => {
-                    console.error('Error:', error);
-                    alert("Error");
-
-                });
-            }
-
-
-
-            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                let id = decodedText.trim();
-                lastScanned = id;
-                if (isProcessingScan) return;
-                isProcessingScan = true;
-                if (scanned.has(id)) {
-
-                    if (lastScanned.toLowerCase() != id.toLowerCase()) {
-
-                        Swal.fire({
-                            icon: "warning",
-                            title: "שגיאה",
-                            text: "המשתתף רשום כבר לאירוע",
-                            footer: 'ניתן להסתכל ברשימת הנרשמים למטה',
-                        }).then(() => {
-                            thread.sleep(1000);
-                            isProcessingScan = false;
-                        });
-                    } else {}
-                } else {
-                    scanned.add(id);
-                    console.log(3);
-                    handleData(id, "qr");
-                }
-                isProcessingScan = false;
-            };
-
-
-            const config = {
-                fps: 60,
-                qrbox: Math.min(width * 0.8, 540) * 0.4
-            };
-
-            var camera_is_on;
-
-
-            new Promise((result) => {
-                    if (debug) {
-
-                        Swal.fire({
-                            title: "<div dir='rtl'>האם לטעון את רשימת הנרשמים?</div><div dir='rtl'>גירסה " + version + "</div>",
-                            showDenyButton: true,
-                            confirmButtonText: " כן",
-                            denyButtonText: `לא`
-                        }).then((swalResult) => {
-                            /* Read more about isConfirmed, isDenied below */
-                            if (swalResult.isConfirmed) {
-                                result(true);
-                            } else if (swalResult.isDenied) {
-                                result(false);
-                            }
-
-                        })
-                    } else {
-                        result(true);
-                    }
-                })
-                .then((result) => {
-                    if (result) {
-                        fetchEventDetails();
-                    }
-                    html5QrCode.start({
-                            facingMode: "environment"
-                        }, config, qrCodeSuccessCallback)
-                        .catch(error => {
-                            console.error("Error starting camera:", error);
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error starting camera",
-                                text: "Could not start video source. Please Refresh this page and try again."
-                            });
-                            allowed = false;
-                            camera_is_on = false;
-                        });
-                    camera_is_on = true;
-                    allowed = true;
-                });
-
-
-            const manual = () => {
-                if (!allowed) return;
-                if (camera_is_on) {
-                    html5QrCode.stop();
-                }
-                Swal.fire({
-                        title: "הכנס תעודת זהות",
-                        input: "number",
-                        didClose: () => {
-                            if (camera_is_on) {
-                                html5QrCode.start({
-                                        facingMode: "environment"
-                                    }, config, qrCodeSuccessCallback)
-                                    .catch(error => {
-                                        console.error("Error starting camera:", error);
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "Error starting camera",
-                                            text: "Could not start video source. Please Refresh this page and try again."
-                                        });
-                                        allowed = false;
-                                        camera_is_on = false;
-                                    });
-                            }
-                        }
-                    })
-                    .then(result => {
-                        console.log(result);
-                        if (result.isDismissed) return;
-                        if (scanned.has(result.value) && lastScanned != result.value) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "שגיאה",
-                                text: "המשתתף רשום כבר לאירוע",
-                                footer: 'ניתן להסתכל ברשימת הנרשמים למטה'
-                            });
-                        } else {
-                            if (result.value == null || result.value.trim() == '') return;
-                            scanned.add(result.value);
-                            lastScanned = result.value;
-                            handleData(result.value, "manual");
-                        }
-                    })
-            }
-
-            const toggle_camera = () => {
-                if (!allowed) return;
-                let btn = document.getElementById("toggle_camera");
-                if (camera_is_on) {
-                    html5QrCode.stop();
-                    camera_is_on = false;
-                    btn.innerHTML = "הפעל מצלמה";
-                } else {
-                    html5QrCode.start({
-                            facingMode: "environment"
-                        }, config, qrCodeSuccessCallback)
-                        .catch(error => {
-                            console.error("Error starting camera:", error);
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error starting camera",
-                                text: "Could not start video source. Please Refresh this page and try again."
-                            });
-                            allowed = false;
-                            camera_is_on = false;
-                        });
-                    camera_is_on = true;
-                    btn.innerHTML = "סגור מצלמה";
-                }
-            }
-            console.log("Test: " + !/^\d{4,9}$/.test("12345"));
-            const manual_btn = document.getElementById("manual");
-            manual_btn.addEventListener("click", manual);
-            const toggle_camera_btn = document.getElementById("toggle_camera");
-            toggle_camera_btn.addEventListener("click", toggle_camera);
-            const refresh_btn = document.getElementById('refresh');
-            const refresh_time = 0.5;
-            const ths = document.getElementsByTagName("th");
-            let ths_toggles = new Array();
-            refresh_btn.addEventListener("click", () => {
-                if (!allowed) return;
-                console.log("Refreshing data");
-                counter = 0;
-                refresh_btn.getElementsByTagName("svg")[0].style.animation = "refresh " + refresh_time + "s ease-in-out " + refresh_time * 2 + "s 2 forwards";
-
-                setTimeout(() => {
-
-                    fetchEventDetails();
-
-                    refresh_btn.getElementsByTagName("svg")[0].style.animation = "";
-                }, refresh_time * 4);
-
-            });
-            Array.from(ths).forEach((element) => {
-                ths_toggles[element.id] = element.id == "by_serial";
-                element.addEventListener("click", (e) => {
-                    const id = e.target.id;
-                    for (const key in ths_toggles) {
-                        if (key != id) {
-                            ths_toggles[key] = false;
-                        } else {
-                            ths_toggles[key] = !ths_toggles[key];
-                        }
-                    }
-                    if (id == "by_id") {
-                        members.sort((a, b) => (b.value.pcfid - a.value.pcfid) * (ths_toggles[id] ? 1 : -1));
-                    } else if (id == "by_name") {
-                        members.sort((a, b) => (a.value.pcfcontactidname.localeCompare(b.value.pcfcontactidname)) * (ths_toggles[id] ? 1 : -1));
-                    } else if (id == "by_paid") {
-                        members.sort((a, b) => (b.value.pcfispaid - a.value.pcfispaid) * (ths_toggles[id] ? 1 : -1));
-                    } else if (id == "by_sum") {
-                        members.sort((a, b) => (b.value.pcfprice - a.value.pcfprice) * (ths_toggles[id] ? 1 : -1));
-                    } else if (id == "by_serial") {
-                        members.sort((a, b) => (b.key - a.key) * (!ths_toggles[id] ? 1 : -1));
-                    }
                     let tbl = document.getElementsByTagName("tbody")[0];
-                    tbl.innerHTML = "";
-                    members.forEach((member) => {
-                        let row = tbl.insertRow(0);
-                        let cell1 = row.insertCell(0);
-                        let cell2 = row.insertCell(1);
-                        let cell3 = row.insertCell(2);
-                        let cell4 = row.insertCell(3);
-                        let cell5 = row.insertCell(4);
-                        cell1.innerHTML = member.key;
-                        cell2.innerHTML = member.value.pcfcontactidname;
-                        cell3.innerHTML = member.value.pcfid;
-                        cell4.innerHTML = member.value.pcfispaidname;
-                        cell4.style.color = member.value.pcfispaid == 1 ? green : red;
-                        cell5.innerHTML = member.value.pcfprice;
-                    });
+                    var row = tbl.insertRow(0);
+
+                    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    // Add some text to the new cells:
+                    let d = new Date(registrant.pcfsignupdate);
+                    cell1.innerHTML = counter;
+                    cell2.innerHTML = registrant.pcfcontactidname;
+                    cell3.innerHTML = registrant.pcfid;
+                    cell4.innerHTML = registrant.pcfispaidname;
+                    cell4.style.color = registrant.pcfispaid == 1 ? green : red;
+                    cell5.innerHTML = registrant.pcfprice;*/
+                    resolve(true);
+                  });
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "שגיאה",
+                    html: "<div dir='rtl'>" + data.body.message + "</div>",
+                    footer:
+                      "<div dir='rtl'>" +
+                      "טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM" +
+                      "</div>",
+                  });
+                  allowed = false;
+                  resolve(false);
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                allowed = false;
+                Swal.fire({
+                  icon: "error",
+                  title: "שגיאה",
+                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                  footer:
+                    "<div dir='rtl'>" +
+                    "טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM" +
+                    "</div>",
                 });
+                resolve(false);
+              });
+          });
+        };
+
+        const handleData = (decodedText, method) => {
+          console.log(`Handling data: ${decodedText}, method: ${method}`);
+          let id = decodedText.trim();
+          isProcessingScan = true;
+          if (!allowed) {
+            console.warn("Scanning not allowed");
+            return;
+          }
+          if (!/^\d{4,9}$/.test(id)) {
+            console.error(`Invalid input: ${id}`);
+            Swal.fire({
+              icon: "error",
+              title: "שגיאה",
+              html: "<div dir='rtl'>אנא הכנס מספר בלבד</div>",
+              footer:
+                "<div dir='rtl'>" +
+                "טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM" +
+                "</div>",
             });
-        }
+            isProcessingScan = false;
+            toggle_camera();
+            return;
+          }
+          const webhookUrl =
+            "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
+          // Data to be sent in the request
+          let data = {
+            barcode: id,
+            event: event,
+            valid: event != null ? true : false,
+            registration_date: new Date(),
+            method: method,
+          };
+          console.log(`Sending data to webhook: ${JSON.stringify(data)}`);
+          fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => {
+              return response.json().then((json) => {
+                return {
+                  statusCode: response.status,
+                  body: json,
+                };
+              });
+            })
+            .then((data) => {
+              let status = data.statusCode;
+              let body = data.body;
+              if (status == 200) {
+                addDataToTable(body);
+                Swal.fire({
+                  title: `המשתתף נרשם בהצלחה`,
+                  icon: "success",
+                });
+              } else if (status == 201) {
+                // Contact Found
+                console.log(body);
+                Swal.fire({
+                  icon: "warning",
+                  title: "המשתתף לא רשום לאירוע",
+                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                  showDenyButton: true,
+                  denyButtonText: `בטל`,
+                  confirmButtonText: "הוסף לרשימה",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    //Add Registration
+                    console.log("Adding registration to CRM");
+                    registerToEvent(event, body.contactid);
+                  }
+                  isProcessingScan = false;
+                });
+              } else {
+                // Contact Not Found
+                Swal.fire({
+                  icon: "error",
+                  title: "שגיאה",
+                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                  showDenyButton: true,
+                  confirmButtonText: "הוסף כאיש קשר",
+                  denyButtonText: `בטל`,
+                }).then((result) => {
+                  if (result.isDenied || result.isDismissed) return;
+                  if (result.isConfirmed) {
+                    //Add Contact + Registration
+
+                    // Ask for details in a form
+                    // firstname, lastname, id, phone, email
+                    Swal.fire({
+                      title: "Registration Form",
+                      html:
+                        '<input id="swal-input1" class="swal2-input" placeholder="שם פרטי">' +
+                        '<input id="swal-input2" class="swal2-input" placeholder="שם משפחה">' +
+                        `<input id="swal-input3" class="swal2-input" placeholder="תעודת זהות" value="${id}"> ` +
+                        '<input id="swal-input4" class="swal2-input" placeholder="טלפון נייד">' +
+                        '<input id="swal-input5" class="swal2-input" placeholder="דואר אלקטרוני">',
+                      focusConfirm: false,
+                      preConfirm: () => {
+                        const firstName =
+                          document.getElementById("swal-input1").value;
+                        const lastName =
+                          document.getElementById("swal-input2").value;
+                        const idNumber =
+                          document.getElementById("swal-input3").value;
+                        const phoneNumber =
+                          document.getElementById("swal-input4").value;
+                        const email =
+                          document.getElementById("swal-input5").value;
+
+                        // Check if all fields are filled
+                        if (
+                          !firstName ||
+                          !lastName ||
+                          !idNumber ||
+                          !phoneNumber ||
+                          !email
+                        ) {
+                          Swal.showValidationMessage("כל השדות חובה");
+                          return false;
+                        }
+
+                        // Validate ID number
+                        if (!/^\d{4,9}$/.test(idNumber)) {
+                          Swal.showValidationMessage("תעודת זהות לא תקינה");
+                          return false;
+                        }
+
+                        // Validate Israeli phone number or international format
+                        if (!/^05\d{8}$|^\+\d{10,15}$/.test(phoneNumber)) {
+                          Swal.showValidationMessage("טלפון לא תקין");
+                          return false;
+                        }
+
+                        // Validate email
+                        if (!/^\S+@\S+\.\S+$/.test(email)) {
+                          Swal.showValidationMessage("דואר אלקטרוני לא תקין");
+                          return false;
+                        }
+
+                        return [
+                          firstName,
+                          lastName,
+                          idNumber,
+                          phoneNumber,
+                          email,
+                        ];
+                      },
+                    }).then((result) => {
+                      if (result.value) {
+                        const [
+                          firstName,
+                          lastName,
+                          idNumber,
+                          phoneNumber,
+                          email,
+                        ] = result.value;
+                        console.log(
+                          "Registration Data:",
+                          firstName,
+                          lastName,
+                          idNumber,
+                          phoneNumber,
+                          email
+                        );
+                        // Send to server
+                        registerToEvent(event, null, {
+                          firstName,
+                          lastName,
+                          idNumber,
+                          phoneNumber,
+                          email,
+                        });
+                      }
+                    });
+
+                    console.log("Adding to CRM");
+                    // Add Contact to CRM and register to event
+
+                    //registerToEvent(event, body.contactid);
+                  }
+                  isProcessingScan = false;
+                });
+              }
+            })
+            .then(() => {
+              isProcessingScan = false;
+            })
+
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error");
+            });
+        };
+
+        const addDataToTable = (body) => {
+          counter++;
+
+          let tbl = document.getElementsByTagName("tbody")[0];
+          var row = tbl.insertRow(0);
+
+          // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+          var cell1 = row.insertCell(0);
+          var cell2 = row.insertCell(1);
+          var cell3 = row.insertCell(2);
+          var cell4 = row.insertCell(3);
+          var cell5 = row.insertCell(4);
+
+          // Add some text to the new cells:
+          let d = new Date(body.expiry);
+          let [name, id, ispaid, price] = [
+            body.contactname ?? body.pcfcontactidname,
+            body.id ?? body.pcfid,
+            body.ispaid ?? body.pcfispaidname,
+            body.price ?? body.pcfprice,
+          ];
+          cell1.innerHTML = counter;
+          cell2.innerHTML = name;
+          cell3.innerHTML = id;
+          cell4.innerHTML = ispaid;
+          cell4.style.color = ispaid == "כן" ? green : red;
+          cell5.innerHTML = price;
+          let txt = "שם: " + (body.name ?? body.pcfcontactidname);
+          if (ispaid == "לא") {
+            txt +=
+              "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
+          }
+          console.log(body);
+          scanned.add(body.id);
+          members[counter] = {
+            key: counter,
+            value: {
+              pcfid: id,
+              pcfcontactidname: name,
+              pcfispaid: ispaid == "כן" ? 1 : 2,
+              pcfispaidname: ispaid,
+              pcfprice: price,
+            },
+          };
+        };
+
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+          let id = decodedText.trim();
+          lastScanned = id;
+          if (isProcessingScan) return;
+          isProcessingScan = true;
+          if (scanned.has(id)) {
+            if (lastScanned.toLowerCase() != id.toLowerCase()) {
+              Swal.fire({
+                icon: "warning",
+                title: "שגיאה",
+                text: "המשתתף רשום כבר לאירוע",
+                footer: "ניתן להסתכל ברשימת הנרשמים למטה",
+              }).then(() => {
+                thread.sleep(1000);
+                isProcessingScan = false;
+              });
+            } else {
+            }
+          } else {
+            scanned.add(id);
+            console.log(3);
+            handleData(id, "qr");
+          }
+          isProcessingScan = false;
+        };
+
+        const config = {
+          fps: 60,
+          qrbox: Math.min(width * 0.8, 540) * 0.4,
+        };
+
+        var camera_is_on;
+
+        new Promise((result) => {
+          if (debug) {
+            Swal.fire({
+              title:
+                "<div dir='rtl'>האם לטעון את רשימת הנרשמים?</div><div dir='rtl'>גירסה " +
+                version +
+                "</div>",
+              showDenyButton: true,
+              confirmButtonText: " כן",
+              denyButtonText: `לא`,
+            }).then((swalResult) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (swalResult.isConfirmed) {
+                result(true);
+              } else if (swalResult.isDenied) {
+                result(false);
+              }
+            });
+          } else {
+            result(true);
+          }
+        }).then((result) => {
+          if (result) {
+            fetchEventDetails();
+          }
+          html5QrCode
+            .start(
+              {
+                facingMode: "environment",
+              },
+              config,
+              qrCodeSuccessCallback
+            )
+            .catch((error) => {
+              console.error("Error starting camera:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error starting camera",
+                text: "Could not start video source. Please Refresh this page and try again.",
+              });
+              allowed = false;
+              camera_is_on = false;
+            });
+          camera_is_on = true;
+          allowed = true;
+        });
+
+        const manual = () => {
+          if (!allowed) return;
+          toggle_camera();
+          Swal.fire({
+            title: "הכנס תעודת זהות",
+            input: "number",
+            didClose: () => {
+              /*if (camera_is_on) {
+                html5QrCode
+                  .start(
+                    {
+                      facingMode: "environment",
+                    },
+                    config,
+                    qrCodeSuccessCallback
+                  )
+                  .catch((error) => {
+                    console.error("Error starting camera:", error);
+                    Swal.fire({
+                      icon: "error",
+                      title: "Error starting camera",
+                      text: "Could not start video source. Please Refresh this page and try again.",
+                    });
+                    allowed = false;
+                    camera_is_on = false;
+                  });
+              }*/
+              toggle_camera();
+            },
+          }).then((result) => {
+            console.log(result);
+            if (result.isDismissed) return;
+            if (scanned.has(result.value) && lastScanned != result.value) {
+              Swal.fire({
+                icon: "error",
+                title: "שגיאה",
+                text: "המשתתף רשום כבר לאירוע",
+                footer: "ניתן להסתכל ברשימת הנרשמים למטה",
+              });
+            } else {
+              if (result.value == null || result.value.trim() == "") return;
+              scanned.add(result.value);
+              lastScanned = result.value;
+              handleData(result.value, "manual");
+            }
+          });
+        };
+
+        const registerToEvent = (
+          event,
+          contactid = null,
+          contactDetails = null
+        ) => {
+          if (!allowed) return;
+          const webhookUrl =
+            "https://hook.eu2.make.com/4ha8k5y40v57r2ej8t5ru7917gcpwmvv";
+          // Data to be sent in the request
+          console.log("Inside Registering to event");
+          let date = Date.now();
+
+          let data = {
+            event: event,
+            contactid: contactid,
+            contactDetails: contactDetails,
+            registration_date: date,
+          };
+          console.log(data);
+          // Send data to webhookUrl
+          fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => {
+              return response.json().then((json) => {
+                return {
+                  statusCode: response.status,
+                  body: json,
+                };
+              });
+            })
+            .then((data) => {
+              let status = data.statusCode;
+              console.log("Data:");
+              console.log(data);
+              console.log("Status:");
+              console.log(status);
+              if (status == 200) {
+                Swal.fire({
+                  icon: "success",
+                  title: "המשתתף נרשם בהצלחה",
+                  text: "המשתתף נרשם בהצלחה",
+                });
+                addDataToTable(data.body);
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "שגיאה",
+                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                  footer:
+                    "<div dir='rtl'>" +
+                    "טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM" +
+                    "</div>",
+                });
+              }
+            });
+        };
+
+        const toggle_camera = () => {
+          if (!allowed) return;
+          let btn = document.getElementById("toggle_camera");
+          if (camera_is_on) {
+            html5QrCode.stop();
+            camera_is_on = false;
+            btn.innerHTML = "הפעל מצלמה";
+          } else {
+            html5QrCode
+              .start(
+                {
+                  facingMode: "environment",
+                },
+                config,
+                qrCodeSuccessCallback
+              )
+              .catch((error) => {
+                console.error("Error starting camera:", error);
+                Swal.fire({
+                  icon: "error",
+                  title: "Error starting camera",
+                  text: "Could not start video source. Please Refresh this page and try again.",
+                });
+                allowed = false;
+                camera_is_on = false;
+              });
+            camera_is_on = true;
+            btn.innerHTML = "סגור מצלמה";
+          }
+        };
+        const manual_btn = document.getElementById("manual");
+        manual_btn.addEventListener("click", manual);
+        const toggle_camera_btn = document.getElementById("toggle_camera");
+        toggle_camera_btn.addEventListener("click", toggle_camera);
+        const refresh_btn = document.getElementById("refresh");
+        const refresh_time = 0.5;
+        const ths = document.getElementsByTagName("th");
+        let ths_toggles = new Array();
+        refresh_btn.addEventListener("click", () => {
+          if (!allowed) return;
+          console.log("Refreshing data");
+          counter = 0;
+          refresh_btn.getElementsByTagName("svg")[0].style.animation =
+            "refresh " +
+            refresh_time +
+            "s ease-in-out " +
+            refresh_time * 2 +
+            "s 2 forwards";
+
+          setTimeout(() => {
+            fetchEventDetails();
+
+            refresh_btn.getElementsByTagName("svg")[0].style.animation = "";
+          }, refresh_time * 4);
+        });
+        Array.from(ths).forEach((element) => {
+          ths_toggles[element.id] = element.id == "by_serial";
+          element.addEventListener("click", (e) => {
+            const id = e.target.id;
+            for (const key in ths_toggles) {
+              if (key != id) {
+                ths_toggles[key] = false;
+              } else {
+                ths_toggles[key] = !ths_toggles[key];
+              }
+            }
+            if (id == "by_id") {
+              members.sort(
+                (a, b) =>
+                  (b.value.pcfid - a.value.pcfid) * (ths_toggles[id] ? 1 : -1)
+              );
+            } else if (id == "by_name") {
+              members.sort(
+                (a, b) =>
+                  a.value.pcfcontactidname.localeCompare(
+                    b.value.pcfcontactidname
+                  ) * (ths_toggles[id] ? 1 : -1)
+              );
+            } else if (id == "by_paid") {
+              members.sort(
+                (a, b) =>
+                  (b.value.pcfispaid - a.value.pcfispaid) *
+                  (ths_toggles[id] ? 1 : -1)
+              );
+            } else if (id == "by_sum") {
+              members.sort(
+                (a, b) =>
+                  (b.value.pcfprice - a.value.pcfprice) *
+                  (ths_toggles[id] ? 1 : -1)
+              );
+            } else if (id == "by_serial") {
+              members.sort(
+                (a, b) => (b.key - a.key) * (!ths_toggles[id] ? 1 : -1)
+              );
+            }
+            let tbl = document.getElementsByTagName("tbody")[0];
+            tbl.innerHTML = "";
+            members.forEach((member) => {
+              let row = tbl.insertRow(0);
+              let cell1 = row.insertCell(0);
+              let cell2 = row.insertCell(1);
+              let cell3 = row.insertCell(2);
+              let cell4 = row.insertCell(3);
+              let cell5 = row.insertCell(4);
+              cell1.innerHTML = member.key;
+              cell2.innerHTML = member.value.pcfcontactidname;
+              cell3.innerHTML = member.value.pcfid;
+              cell4.innerHTML = member.value.pcfispaidname;
+              cell4.style.color = member.value.pcfispaid == 1 ? green : red;
+              cell5.innerHTML = member.value.pcfprice;
+            });
+          });
+        });
+      };
     </script>
-</head>
+  </head>
 
-
-
-<body>
-    <div style="display: none;" class="event_header" id="event_header"></div>
+  <body>
+    <div style="display: none" class="event_header" id="event_header"></div>
     <div id="reader"></div>
     <div class="data_container">
-        <div class="btn_container">
-            <a class="btn refresh" id="refresh">
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg>
-            </a>
-            <a class="btn" id="toggle_camera">סגור מצלמה</a>
+      <div class="btn_container">
+        <a class="btn refresh" id="refresh">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="1em"
+            viewBox="0 0 512 512"
+          >
+            <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+            <path
+              d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"
+            />
+          </svg>
+        </a>
+        <a class="btn" id="toggle_camera">סגור מצלמה</a>
 
-            <a class="btn" id="manual"><span><svg xmlns="http://www.w3.org/2000/svg" height="1em"
-                        viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                        <path
-                            d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
-                    </svg></span> הכנסה ידנית
-            </a>
-
-        </div>
-        <table class="styled-table" id="tbl">
-            <thead>
-                <tr>
-                    <th id="by_serial" class="tlb">מס"ד</th>
-                    <th id="by_name">שם מלא</th>
-                    <th id="by_id">תעודת זהות</th>
-                    <th id="by_paid">האם שולם</th>
-                    <th id="by_sum" class="trb">סכום</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <a class="btn" id="manual"
+          ><span
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="1em"
+              viewBox="0 0 512 512"
+            >
+              <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+              <path
+                d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"
+              /></svg
+          ></span>
+          הכנסה ידנית
+        </a>
+      </div>
+      <table class="styled-table" id="tbl">
+        <thead>
+          <tr>
+            <th id="by_serial" class="tlb">מס"ד</th>
+            <th id="by_name">שם מלא</th>
+            <th id="by_id">תעודת זהות</th>
+            <th id="by_paid">האם שולם</th>
+            <th id="by_sum" class="trb">סכום</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-</body>
-
+  </body>
 </html>
-"
-<style>
-    .wati {
-        color: black;
-        height: 25px !important;
-        font-size: 16px;
-        text-decoration: none;
-        display: block;
-        border-radius: 20px;
-        border: 1px solid #25D366;
-        padding: 10px 15px 6px
-    }
-    
-    .wati:hover {
-        cursor: pointer;
-        color: white !important;
-        background-color: #25D366;
-        border-color: white !important;
-        text-decoration: none;
-        transition: .5s all;
-    }
-</style>
