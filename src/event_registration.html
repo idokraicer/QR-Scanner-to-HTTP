@@ -198,6 +198,7 @@
             members.pop();
           }
           scanned.clear();
+          counter = 0;
           return new Promise((resolve) => {
             if (!allowed) return;
             const webhookUrl =
@@ -278,7 +279,7 @@
         const handleData = (decodedText, method) => {
           console.log(`Handling data: ${decodedText}, method: ${method}`);
           let id = decodedText.trim();
-          isProcessingScan = true;
+          //isProcessingScan = true;
           if (!allowed) {
             console.warn("Scanning not allowed");
             return;
@@ -304,11 +305,15 @@
               icon: "warning",
               title: "שגיאה",
               html: "<div dir='rtl'>המשתתף כבר הגיע לאירוע.</div>",
-              footer: "ניתן להסתכל ברשימת הנרשמים למטה1",
+              allowOutsideClick: false, // Prevents closing the swal window by clicking outside
+              allowEscapeKey: false, // Prevents closing the swal window by pressing the escape key
+              showConfirmButton: false, // Hides the confirm button
+              footer: "ניתן להסתכל ברשימת הנרשמים למטה",
+            }).then((result) => {
+              isProcessingScan = false;
+              toggle_camera();
+              return;
             });
-            isProcessingScan = false;
-            toggle_camera();
-            return;
           }
           const webhookUrl =
             "https://hook.eu2.make.com/5vldkxaz43gcda9c2dq5nnps4iofisd9";
@@ -372,6 +377,14 @@
                 }).then((result) => {
                   fetchEventDetails();
 
+                  isProcessingScan = false;
+                });
+              } else if (status === 203) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "שגיאה",
+                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                }).then((result) => {
                   isProcessingScan = false;
                 });
               } else {
@@ -524,7 +537,7 @@
               "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
           }
           console.log(body);
-          scanned.add(body.id);
+          scanned.add(id);
           members[counter] = {
             key: counter,
             value: {
@@ -539,27 +552,29 @@
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
           let id = decodedText.trim();
+          if (lastScanned == id) {
+            return;
+          }
+          //toggle_camera();
           lastScanned = id;
           if (isProcessingScan) return;
           isProcessingScan = true;
           if (scanned.has(id)) {
-            if (lastScanned.toLowerCase() != id.toLowerCase()) {
-              Swal.fire({
-                icon: "warning",
-                title: "שגיאה",
-                text: "המשתתף כבר הגיע לאירוע.",
-                footer: "ניתן להסתכל ברשימת הנרשמים למטה",
-              }).then(() => {
-                thread.sleep(1000);
-                isProcessingScan = false;
-              });
-            } else {
-            }
+            Swal.fire({
+              icon: "warning",
+              title: "שגיאה",
+              text: "המשתתף כבר הגיע לאירוע.",
+              footer: "ניתן להסתכל ברשימת הנרשמים למטה",
+              confirmButtonText: "אישור",
+            }).then((result) => {
+              isProcessingScan = false;
+              return;
+            });
           } else {
-            //scanned.add(id);
             handleData(id, "qr");
+            isProcessingScan = false;
+            return;
           }
-          isProcessingScan = false;
         };
 
         const config = {
@@ -616,7 +631,7 @@
           allowed = true;
         });
 
-        const manual = () => {
+        const manual = async () => {
           if (!allowed) return;
           toggle_camera();
           Swal.fire({
@@ -639,9 +654,9 @@
               if (result.value == null || result.value.trim() == "") return;
               //scanned.add(result.value);
               lastScanned = result.value;
-              handleData(result.value, "manual");
             }
           });
+          await handleData(result.value, "manual");
         };
 
         const registerToEvent = (
