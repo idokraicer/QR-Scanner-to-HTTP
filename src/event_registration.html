@@ -164,6 +164,7 @@
       window.onload = () => {
         const version = "5.1";
         var allowed = true;
+        let camera_off = false;
         let debug;
         if (
           location.hostname === "localhost" ||
@@ -223,6 +224,8 @@
               })
               .then((data) => {
                 let status = data.statusCode;
+                // Status 200 - OK
+                // Status 400 - Event Not Found
                 if (status == 200) {
                   let body = data.body;
                   let registrants = body.registrants;
@@ -342,13 +345,22 @@
               });
             })
             .then((data) => {
+              /*
+                Status Codes:
+                200 - OK - Contact Found, Registration changed to Attended
+                201 - Contact Found, No Registration Found
+                202 - Contact Found and Already Attended Event
+                203 - Invalid Card Expiration Date
+                400 - Bad Request
+              */
               let status = data.statusCode;
               let body = data.body;
               if (status == 200) {
-                addDataToTable(body);
+                let txt = addDataToTable(body);
                 Swal.fire({
                   title: `המשתתף נרשם בהצלחה`,
                   icon: "success",
+                  html: "<div dir='rtl'>" + txt + "</div>",
                 });
               } else if (status == 201) {
                 // Contact Found
@@ -376,7 +388,6 @@
                   footer: "ניתן להסתכל ברשימת הנרשמים למטה",
                 }).then((result) => {
                   fetchEventDetails();
-
                   isProcessingScan = false;
                 });
               } else if (status === 203) {
@@ -400,7 +411,6 @@
                   if (result.isDenied || result.isDismissed) return;
                   if (result.isConfirmed) {
                     //Add Contact + Registration
-
                     // Ask for details in a form
                     // firstname, lastname, id, phone, email
                     Swal.fire({
@@ -408,7 +418,7 @@
                       html:
                         '<input id="swal-input1" class="swal2-input" placeholder="שם פרטי">' +
                         '<input id="swal-input2" class="swal2-input" placeholder="שם משפחה">' +
-                        `<input id="swal-input3" class="swal2-input" placeholder="תעודת זהות" value="${id}"> ` +
+                        `<input id="swal-input3" class="swal2-input" placeholder="תעודת זהות" value="${id}" disabled="disabled"> ` +
                         '<input id="swal-input4" class="swal2-input" placeholder="טלפון נייד">' +
                         '<input id="swal-input5" class="swal2-input" placeholder="דואר אלקטרוני">',
                       focusConfirm: false,
@@ -531,7 +541,7 @@
           cell4.innerHTML = ispaid;
           cell4.style.color = ispaid == "כן" ? green : red;
           cell5.innerHTML = price;
-          let txt = "שם: " + (body.name ?? body.pcfcontactidname);
+          let txt = "שם: " + name;
           if (ispaid == "לא") {
             txt +=
               "<br /><div style='color: red;font-weight:bold; font-size:2em'>הכרטיס לא שולם</div>";
@@ -548,6 +558,7 @@
               pcfprice: price,
             },
           };
+          return txt;
         };
 
         const qrCodeSuccessCallback = (decodedText, decodedResult) => {
@@ -640,23 +651,24 @@
             didClose: () => {
               toggle_camera();
             },
-          }).then((result) => {
+          }).then(async (result) => {
             console.log(result);
             if (result.isDismissed) return;
-            if (scanned.has(result.value) && lastScanned != result.value) {
+            if (scanned.has(result.value) || lastScanned == result.value) {
               Swal.fire({
-                icon: "error",
+                icon: "warning",
                 title: "שגיאה",
                 text: "המשתתף רשום כבר לאירוע",
                 footer: "ניתן להסתכל ברשימת הנרשמים למטה",
               });
+              toggle_camera();
             } else {
               if (result.value == null || result.value.trim() == "") return;
               //scanned.add(result.value);
               lastScanned = result.value;
+              await handleData(result.value, "manual");
             }
           });
-          await handleData(result.value, "manual");
         };
 
         const registerToEvent = (
@@ -696,17 +708,17 @@
             .then((data) => {
               let status = data.statusCode;
               if (status == 200) {
+                let txt = addDataToTable(data.body);
                 Swal.fire({
                   icon: "success",
                   title: "המשתתף נרשם בהצלחה",
-                  text: "המשתתף נרשם בהצלחה",
+                  html: "<div dir='rtl'>" + txt + "</div>",
                 });
-                addDataToTable(data.body);
               } else {
                 Swal.fire({
                   icon: "error",
                   title: "שגיאה",
-                  html: "<div dir='rtl'>" + data.body.message + "</div>",
+                  html: "<div dir='rtl'>" + data.body.message,
                   footer:
                     "<div dir='rtl'>" +
                     "טיפ: קישור לאירוע נמצא בכרטיס האירוע בCRM" +
@@ -719,6 +731,7 @@
         const toggle_camera = () => {
           if (!allowed) return;
           let btn = document.getElementById("toggle_camera");
+          if (camera_off && !camera_is_on) return;
           if (camera_is_on) {
             html5QrCode.stop();
             camera_is_on = false;
@@ -749,7 +762,10 @@
         const manual_btn = document.getElementById("manual");
         manual_btn.addEventListener("click", manual);
         const toggle_camera_btn = document.getElementById("toggle_camera");
-        toggle_camera_btn.addEventListener("click", toggle_camera);
+        toggle_camera_btn.addEventListener("click", () => {
+          camera_off = !camera_off;
+          toggle_camera();
+        });
         const refresh_btn = document.getElementById("refresh");
         const refresh_time = 0.5;
         const ths = document.getElementsByTagName("th");
@@ -835,6 +851,26 @@
   </head>
 
   <body>
+    <div
+      class="harash_logo"
+      id="harash_logo"
+      style="
+        opacity: 0.5;
+        height: 5vh;
+        width: 5vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        margin: 1vh 0 0 1vh;
+      "
+    >
+      <img
+        src="https://www.ida.org.il/wp-content/uploads/2022/12/favicon.png"
+        alt="ההסתדרות לרפואת שיניים"
+        style="height: 100%; width: 100%"
+      />
+    </div>
     <div style="display: none" class="event_header" id="event_header"></div>
     <div id="reader"></div>
     <div class="data_container">
