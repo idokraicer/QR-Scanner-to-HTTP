@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Picture Upload</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f4f4f4;
+        font-family: "Arial", sans-serif;
+      }
+
+      .upload-container {
+        width: 30%;
+        min-width: 300px;
+        height: 30%;
+        min-height: 200px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #fileInput {
+        border: 2px solid #ddd;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #uploadButton {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+
+      #uploadButton:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="upload-container">
+      <h2>העלאת תמונת פרופיל</h2>
+      <input type="file" id="fileInput" accept="image/*" />
+      <button disabled="disabled" id="uploadButton">שלח</button>
+    </div>
+    <script>
+      var fileInput = document.getElementById("fileInput");
+      var uploadButton = document.getElementById("uploadButton");
+
+      fileInput.addEventListener("change", function () {
+        if (this.files && this.files.length > 0) {
+          uploadButton.removeAttribute("disabled");
+        } else {
+          uploadButton.setAttribute("disabled", "disabled");
+        }
+      });
+      document
+        .getElementById("uploadButton")
+        .addEventListener("click", function () {
+          var file = fileInput.files[0];
+          var formData = new FormData();
+
+          // Get the full URL
+          const currentUrl = window.location.href;
+
+          // Create a URLSearchParams object from the current URL
+          const urlParams = new URLSearchParams(new URL(currentUrl).search);
+
+          // Retrieve the value of the 'contactid' parameter
+          const contactId = urlParams.get("contactid");
+          formData.append("profilePicture", file);
+          formData.append("contactid", contactId);
+          fetch("https://hook.eu2.make.com/a5oj449d6umms8srp2v8yuv94pha4gdm", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              console.log("Success:", data);
+              window.close();
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              window.close();
+            });
+        });
+    </script>
+  </body>
+</html>
