@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <script>
+    const sendMembershipCard = () => {
+      const currentUrl = window.location.href;
+
+      // Create a URLSearchParams object from the current URL
+      const urlParams = new URLSearchParams(new URL(currentUrl).search);
+      console.log(urlParams);
+      const contactId = urlParams.get("contactid");
+      const membershipCard = urlParams.get("membershipcard");
+      if (membershipCard === null || contactId === null) {
+        window.close();
+      }
+      const body = {
+        membershipCard,
+        contactId,
+      };
+
+      fetch("https://hook.eu2.make.com/mif50gl8n7tdfkm94d0yflefodll28sr", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.text())
+        .then((data) => {
+          console.log("Success:", data);
+          window.close();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          window.close();
+        });
+    };
+    sendMembershipCard();
+  </script>
+  <body>
+    <h1>הכרטיס נשלח בהצלחה</h1>
+    <h4>לחץ על הכפתור כדי לסגור את החלון</h4>
+    <button onclick="window.close()">סגור</button>
+  </body>
+</html>
